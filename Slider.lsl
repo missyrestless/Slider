@@ -5,20 +5,44 @@
 //
 // Ignore touches while sliding
 
-vector     Home;                // Initial closed position
-rotation   Rot;                 // Initial rotation of the object
-vector     Offset;              // Populated with the move distance stored in the axis position
-integer    AUTO_CLOSE_TIME = 0; // Can be zero if no auto-close is desired
-integer    Phantom; 
-integer    Physics; 
+rotation  Rot;                 // Initial rotation of the object
+vector    Home;                // Initial closed position
+vector    Offset;              // Populated with the move distance stored in the axis position
+integer   AUTO_CLOSE_TIME = 0; // Can be zero if no auto-close is desired
+integer   Phantom; 
+integer   Physics; 
+integer   RotateX; 
+integer   RotateY; 
+integer   RotateZ; 
+integer   TargetID;
+integer   Debug = TRUE;        // Set to FALSE to turn off debugging output
+
+outputDebug(vector Target) {
+    vector Position = llGetPos();
+    llOwnerSay("Current position: " + (string)Position);
+    llOwnerSay("The distance between current position and target position is: " + (string)llVecDist(Position, Target));
+}
 
 // Set the object PHANTOM and PHYSICAL and start moving it
 startMove(vector Target) {
     // Do this first, to avoid the object dropping
-    llMoveToTarget(Target, 3);
+    // llSetBuoyancy(1.0);
+    // Lock rotations while moving
+    llSetStatus(STATUS_ROTATE_X | STATUS_ROTATE_Y | STATUS_ROTATE_Z, FALSE);
 
+    // Make sure oject is phantom and physics enabled
     llSetStatus(STATUS_PHANTOM, TRUE);
     llSetStatus(STATUS_PHYSICS, TRUE);
+    TargetID = llTarget(Target, 0.25);
+    // Little pause to allow server to make potentially large linked object physical
+    llSleep(0.1);
+
+    // Start the move
+    if (Debug) {
+        outputDebug(Target);
+        llOwnerSay("Calling llMoveToTarget(" + (string)Target + ", 5.0)");
+    }
+    llMoveToTarget(Target, 5.0);
 
     // Start a timer. We will end the move after this time.
     llSetTimerEvent(6);
@@ -29,7 +53,23 @@ endMove(vector Target) {
     llSetTimerEvent(0);
     llSetStatus(STATUS_PHYSICS, Physics);
     llSetStatus(STATUS_PHANTOM, Phantom);
+    // llSetBuoyancy(0.0);
+    llSetStatus(STATUS_ROTATE_X, RotateX);
+    llSetStatus(STATUS_ROTATE_Y, RotateY);
+    llSetStatus(STATUS_ROTATE_Z, RotateZ);
+    if (Debug) {
+        outputDebug(Target);
+        llOwnerSay("Calling llSetPrimitiveParams([PRIM_POSITION, " 
+            + (string)Target + ", PRIM_ROTATION, " + (string)Rot + "])");
+    }
     llSetPrimitiveParams([ PRIM_POSITION, Target, PRIM_ROTATION, Rot ]);
+}
+
+removeTarget(vector tpos, vector opos) {
+    llOwnerSay("Object is within range of target");
+    llOwnerSay("Target position: " + (string)tpos + ", object is now at: " + (string)opos);
+    llOwnerSay("this is " + (string)llVecDist(tpos, opos) + " meters from the target");
+    llTargetRemove(TargetID);
 }
 
 default {
@@ -39,6 +79,9 @@ default {
         Home = llGetPos();
         Phantom = llGetStatus(STATUS_PHANTOM);
         Physics = llGetStatus(STATUS_PHYSICS);
+        RotateX = llGetStatus(STATUS_ROTATE_X);
+        RotateY = llGetStatus(STATUS_ROTATE_Y);
+        RotateZ = llGetStatus(STATUS_ROTATE_Z);
 
         // Find the middle sized dimension of the object
         // This determines the axis to move on, and the distance to move
@@ -49,6 +92,12 @@ default {
 
     touch_end(integer total_number) {
         state opening;
+    }
+
+    changed(integer change) {
+        if (change & CHANGED_INVENTORY) {
+            llResetScript();
+        }
     }
 }
 
@@ -61,6 +110,16 @@ state opening {
     timer() {
         endMove(Home + Offset * Rot);
         state open;
+    }
+
+    at_target(integer tnum, vector targetpos, vector ourpos) {
+        if (tnum == TargetID) {
+            removeTarget(targetpos, ourpos);
+        }
+    }
+
+    not_at_target() {
+        llOwnerSay("Not there yet - object is at " + (string)llGetPos());
     }
 }
 
@@ -79,6 +138,12 @@ state open {
     timer() {
         state closing;
     }
+
+    changed(integer change) {
+        if (change & CHANGED_INVENTORY) {
+            llResetScript();
+        }
+    }
 }
 
 // State for when the object is in the process of closing
@@ -90,5 +155,15 @@ state closing {
     timer() {
         endMove(Home);
         state default;
+    }
+
+    at_target(integer tnum, vector targetpos, vector ourpos) {
+        if (tnum == TargetID) {
+            removeTarget(targetpos, ourpos);
+        }
+    }
+
+    not_at_target() {
+        llOwnerSay("Not there yet - object is at " + (string)llGetPos());
     }
 }
