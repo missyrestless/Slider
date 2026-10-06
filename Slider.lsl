@@ -17,7 +17,7 @@ integer   RotateZ;
 integer   TargetID;
 integer   Debug = TRUE;        // Set to FALSE to turn off debugging output
 
-outputDebug(vector Target) {
+debugOut(vector Target) {
     vector Position = llGetPos();
     llOwnerSay("Current position: " + (string)Position);
     llOwnerSay("The distance between current position and target position is: " + (string)llVecDist(Position, Target));
@@ -25,40 +25,52 @@ outputDebug(vector Target) {
 
 // Set the object PHANTOM and PHYSICAL and start moving it
 startMove(vector Target) {
-    // Do this first, to avoid the object dropping
-    // llSetBuoyancy(1.0);
+    // Make sure oject is phantom and physics enabled
+    // llSetStatus(STATUS_PHANTOM, TRUE);
+    // llSetStatus(STATUS_PHYSICS, TRUE);
+    // Set object to phantom (TRUE) and enable physics (TRUE)
+    llSetPrimitiveParams([
+        PRIM_PHANTOM, TRUE,
+        PRIM_PHYSICS, TRUE
+    ]);
     // Lock rotations while moving
     llSetStatus(STATUS_ROTATE_X | STATUS_ROTATE_Y | STATUS_ROTATE_Z, FALSE);
 
-    // Make sure oject is phantom and physics enabled
-    llSetStatus(STATUS_PHANTOM, TRUE);
-    llSetStatus(STATUS_PHYSICS, TRUE);
+    // So we know when we are within range of the target
     TargetID = llTarget(Target, 0.25);
     // Little pause to allow server to make potentially large linked object physical
     llSleep(0.1);
 
     // Start the move
     if (Debug) {
-        outputDebug(Target);
-        llOwnerSay("Calling llMoveToTarget(" + (string)Target + ", 5.0)");
+        debugOut(Target);
+        llOwnerSay("Calling llMoveToTarget(" + (string)Target + ", 0.5)");
     }
-    llMoveToTarget(Target, 5.0);
+    llMoveToTarget(Target, 0.5);
 
     // Start a timer. We will end the move after this time.
-    llSetTimerEvent(6);
+    llSetTimerEvent(10);
 }
 
 endMove(vector Target) {
     // Return the object to original phantom and physical states, do a final confirmatory move
     llSetTimerEvent(0);
-    llSetStatus(STATUS_PHYSICS, Physics);
-    llSetStatus(STATUS_PHANTOM, Phantom);
+    // Remove the target ID
+    llTargetRemove(TargetID);
+    // Stop the physics engine from constantly pushing towards the point
+    llStopMoveToTarget();
+    // llSetStatus(STATUS_PHYSICS, Physics);
+    // llSetStatus(STATUS_PHANTOM, Phantom);
+    llSetPrimitiveParams([
+        PRIM_PHANTOM, Phantom,
+        PRIM_PHYSICS, Physics
+    ]);
     // llSetBuoyancy(0.0);
     llSetStatus(STATUS_ROTATE_X, RotateX);
     llSetStatus(STATUS_ROTATE_Y, RotateY);
     llSetStatus(STATUS_ROTATE_Z, RotateZ);
     if (Debug) {
-        outputDebug(Target);
+        debugOut(Target);
         llOwnerSay("Calling llSetPrimitiveParams([PRIM_POSITION, " 
             + (string)Target + ", PRIM_ROTATION, " + (string)Rot + "])");
     }
@@ -66,10 +78,12 @@ endMove(vector Target) {
 }
 
 removeTarget(vector tpos, vector opos) {
-    llOwnerSay("Object is within range of target");
-    llOwnerSay("Target position: " + (string)tpos + ", object is now at: " + (string)opos);
-    llOwnerSay("this is " + (string)llVecDist(tpos, opos) + " meters from the target");
-    llTargetRemove(TargetID);
+    if (Debug) {
+        llOwnerSay("Object is within range of target");
+        llOwnerSay("Target position: " + (string)tpos + ", object is now at: " + (string)opos);
+        llOwnerSay("this is " + (string)llVecDist(tpos, opos) + " meters from the target");
+    }
+    endMove(tpos);
 }
 
 default {
@@ -82,6 +96,9 @@ default {
         RotateX = llGetStatus(STATUS_ROTATE_X);
         RotateY = llGetStatus(STATUS_ROTATE_Y);
         RotateZ = llGetStatus(STATUS_ROTATE_Z);
+
+        // Do this first, to avoid the object dropping
+        llSetBuoyancy(1.0);
 
         // Find the middle sized dimension of the object
         // This determines the axis to move on, and the distance to move
@@ -119,7 +136,9 @@ state opening {
     }
 
     not_at_target() {
-        llOwnerSay("Not there yet - object is at " + (string)llGetPos());
+        if (Debug) {
+            llOwnerSay("Not there yet - object is at " + (string)llGetPos());
+        }
     }
 }
 
