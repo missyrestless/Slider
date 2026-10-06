@@ -1,110 +1,70 @@
-// Object Slider
+// Smooth Object Slide on touch using llSetKeyframedMotion (KFM)
 //
-// Written 05-October-2026 by Missy Restless <missyrestless@gmail.com>
-// Based on sliding door script by by Omei Qunhua
+// Written 06-October-2026 by Missy Restless <missyrestless@gmail.com>
 //
-// Ignore touches while sliding
 
+integer   Debug = FALSE;       // Set to TRUE for verbose debug output
 rotation  Rot;                 // Initial rotation of the object
 vector    Home;                // Initial closed position
-vector    Offset;              // Populated with the move distance stored in the axis position
-integer   AUTO_CLOSE_TIME = 0; // Can be zero if no auto-close is desired
-integer   Phantom; 
-integer   Physics; 
-integer   RotateX; 
-integer   RotateY; 
-integer   RotateZ; 
-integer   TargetID;
-integer   Debug = TRUE;        // Set to FALSE to turn off debugging output
+vector    Open;                // Open position
+float     Distance;
+vector    Size;
 
-debugOut(vector Target) {
-    vector Position = llGetPos();
-    llOwnerSay("Current position: " + (string)Position);
-    llOwnerSay("The distance between current position and target position is: " + (string)llVecDist(Position, Target));
-}
+// Define a sound that plays when the door starts to open; set to NULL_KEY for no sound.
+key     SOUND_ON_OPEN  = "e5e01091-9c1f-4f8c-8486-46d560ff664f";
+// Define a sound that plays when the door has closed; set to NULL_KEY for no sound.
+key     SOUND_ON_CLOSE = "88d13f1f-85a8-49da-99f7-6fa2781b2229";
+// Define the volume of the opening and closing sounds
+float   SOUND_VOLUME   = 1.0;
 
-// Set the object PHANTOM and PHYSICAL and start moving it
-startMove(vector Target) {
-    // Make sure oject is phantom and physics enabled
-    // llSetStatus(STATUS_PHANTOM, TRUE);
-    // llSetStatus(STATUS_PHYSICS, TRUE);
-    // Set object to phantom (TRUE) and enable physics (TRUE)
-    llSetPrimitiveParams([
-        PRIM_PHANTOM, TRUE,
-        PRIM_PHYSICS, TRUE
-    ]);
-    // Lock rotations while moving
-    llSetStatus(STATUS_ROTATE_X | STATUS_ROTATE_Y | STATUS_ROTATE_Z, FALSE);
-
-    // So we know when we are within range of the target
-    TargetID = llTarget(Target, 0.25);
-    // Little pause to allow server to make potentially large linked object physical
-    llSleep(0.1);
-
-    // Start the move
+moveToTarget(float dst) {
     if (Debug) {
-        debugOut(Target);
-        llOwnerSay("Calling llMoveToTarget(" + (string)Target + ", 0.5)");
+        llOwnerSay("In moveToTarget(dst) with dst = " + (string)dst);
     }
-    llMoveToTarget(Target, 0.5);
+    // Calculate the local translation vector
+    vector local_offset = <dst, 0.0, 0.0>;
+        
+    // Convert local offset to global coordinates based on current rotation
+    vector global_offset = local_offset * llGetRot();
+        
+    // Define the movement keyframe: [offset vector, rotation, duration in seconds]
+    float duration = 4.0; // Adjust this number to make it slide faster or slower
+    list keyframe = [global_offset, ZERO_ROTATION, duration];
+        
+    llSetTimerEvent(duration * 2.0);
 
-    // Start a timer. We will end the move after this time.
-    llSetTimerEvent(10);
-}
-
-endMove(vector Target) {
-    // Return the object to original phantom and physical states, do a final confirmatory move
-    llSetTimerEvent(0);
-    // Remove the target ID
-    llTargetRemove(TargetID);
-    // Stop the physics engine from constantly pushing towards the point
-    llStopMoveToTarget();
-    // llSetStatus(STATUS_PHYSICS, Physics);
-    // llSetStatus(STATUS_PHANTOM, Phantom);
-    llSetPrimitiveParams([
-        PRIM_PHANTOM, Phantom,
-        PRIM_PHYSICS, Physics
-    ]);
-    // llSetBuoyancy(0.0);
-    llSetStatus(STATUS_ROTATE_X, RotateX);
-    llSetStatus(STATUS_ROTATE_Y, RotateY);
-    llSetStatus(STATUS_ROTATE_Z, RotateZ);
+    // Trigger the smooth motion
     if (Debug) {
-        debugOut(Target);
-        llOwnerSay("Calling llSetPrimitiveParams([PRIM_POSITION, " 
-            + (string)Target + ", PRIM_ROTATION, " + (string)Rot + "])");
+        llOwnerSay("Calling llSetKeyframedMotion with keyframe = " + llDumpList2String(keyframe, ", "));
     }
-    llSetPrimitiveParams([ PRIM_POSITION, Target, PRIM_ROTATION, Rot ]);
-}
-
-removeTarget(vector tpos, vector opos) {
-    if (Debug) {
-        llOwnerSay("Object is within range of target");
-        llOwnerSay("Target position: " + (string)tpos + ", object is now at: " + (string)opos);
-        llOwnerSay("this is " + (string)llVecDist(tpos, opos) + " meters from the target");
-    }
-    endMove(tpos);
+    llSetKeyframedMotion(keyframe, []);
 }
 
 default {
     state_entry() {
-        vector Scale = llGetScale();
         Rot = llGetRot();
         Home = llGetPos();
-        Phantom = llGetStatus(STATUS_PHANTOM);
-        Physics = llGetStatus(STATUS_PHYSICS);
-        RotateX = llGetStatus(STATUS_ROTATE_X);
-        RotateY = llGetStatus(STATUS_ROTATE_Y);
-        RotateZ = llGetStatus(STATUS_ROTATE_Z);
 
-        // Do this first, to avoid the object dropping
-        llSetBuoyancy(1.0);
+        if (SOUND_ON_OPEN) {
+            llPreloadSound(SOUND_ON_OPEN);
+        }
 
-        // Find the middle sized dimension of the object
-        // This determines the axis to move on, and the distance to move
-        list lx = llListSort( [Scale.x, <1,0,0>, Scale.y, <0,1,0>, Scale.z, <0,0,1> ], 2, TRUE ); 
-        // Apply the distance to move to the appropriate dimension
-        Offset = llList2Vector(lx, 3) * llList2Float(lx, 2);
+        // Set the object physics shape to Convex Hull and Disable physics
+        llSetLinkPrimitiveParamsFast(LINK_THIS, [
+            PRIM_PHYSICS_SHAPE_TYPE, PRIM_PHYSICS_SHAPE_CONVEX,
+            PRIM_PHYSICS, FALSE
+        ]);
+        // Get the object's size (length)
+        Size = llGetScale();
+        // Define the distance to move (using the X dimension of its size)
+        Distance = Size.x;
+        // Set open position
+        Open = Home + <Distance, 0.0, 0.0>;
+        if (Debug) {
+            llOwnerSay("Distance = " + (string)Distance);
+            llOwnerSay("Home     = " + (string)Home);
+            llOwnerSay("Open     = " + (string)Open);
+        }
     }
 
     touch_end(integer total_number) {
@@ -118,43 +78,43 @@ default {
     }
 }
 
-// In this state, the object is in process of opening
+// In this state, the object is in process of sliding open
+// Ignore touches while sliding
 state opening {
     state_entry() {
-        startMove(Home + Offset * Rot);
+        if (SOUND_ON_OPEN) {
+            llPlaySound(SOUND_ON_OPEN, SOUND_VOLUME);
+        }
+        if (SOUND_ON_CLOSE) {
+            llPreloadSound(SOUND_ON_CLOSE);
+        }
+        if (Debug) {
+            llOwnerSay("Calling moveToTarget(" + (string)Distance + ") in opening state");
+        }
+        moveToTarget(Distance);
     }
 
     timer() {
-        endMove(Home + Offset * Rot);
+        llSetTimerEvent(0);
         state open;
-    }
-
-    at_target(integer tnum, vector targetpos, vector ourpos) {
-        if (tnum == TargetID) {
-            removeTarget(targetpos, ourpos);
-        }
-    }
-
-    not_at_target() {
-        if (Debug) {
-            llOwnerSay("Not there yet - object is at " + (string)llGetPos());
-        }
     }
 }
 
 // State for when the object is fully open
 state open {
     state_entry() {
-        // Close the object after this time (or not, if value is zero)
-        llSetTimerEvent(AUTO_CLOSE_TIME);
+        // Finalize move to open position
+        if (Debug) {
+            llOwnerSay("Finalize move to open position with call to:\nllSetLinkPrimitiveParamsFast(LINK_ROOT, [PRIM_POSITION, " + (string)Open + ", PRIM_ROTATION, " + (string)Rot + "])");
+        }
+        llSetLinkPrimitiveParamsFast(LINK_ROOT, [
+            PRIM_POSITION, Open,
+            PRIM_ROTATION, Rot
+        ]);
     }
 
     // We will close the object either if it's touched while fully open, or after a time
     touch_end(integer num) {
-        state closing;
-    }
-
-    timer() {
         state closing;
     }
 
@@ -165,24 +125,48 @@ state open {
     }
 }
 
-// State for when the object is in the process of closing
+// State for when the object is in the process of sliding close
+// Ignore touches while sliding
 state closing {
     state_entry() {
-        startMove(Home);
+        if (SOUND_ON_CLOSE) {
+            llPlaySound(SOUND_ON_CLOSE, SOUND_VOLUME);
+        }
+        if (SOUND_ON_OPEN) {
+            llPreloadSound(SOUND_ON_OPEN);
+        }
+        if (Debug) {
+            llOwnerSay("Calling moveToTarget(-" + (string)Distance + ") in closing state");
+        }
+        moveToTarget(-Distance);
     }
 
     timer() {
-        endMove(Home);
-        state default;
+        llSetTimerEvent(0);
+        state closed;
     }
+}
 
-    at_target(integer tnum, vector targetpos, vector ourpos) {
-        if (tnum == TargetID) {
-            removeTarget(targetpos, ourpos);
+// State for when the object is closed
+state closed {
+    state_entry() {
+        // Finalize move to closed position
+        if (Debug) {
+            llOwnerSay("Finalize move to closed position with call to:\nllSetLinkPrimitiveParamsFast(LINK_ROOT, [PRIM_POSITION, " + (string)Home + ", PRIM_ROTATION, " + (string)Rot + "])");
         }
+        llSetLinkPrimitiveParamsFast(LINK_ROOT, [
+            PRIM_POSITION, Home,
+            PRIM_ROTATION, Rot
+        ]);
     }
 
-    not_at_target() {
-        llOwnerSay("Not there yet - object is at " + (string)llGetPos());
+    touch_end(integer num) {
+        state opening;
+    }
+
+    changed(integer change) {
+        if (change & CHANGED_INVENTORY) {
+            llResetScript();
+        }
     }
 }
