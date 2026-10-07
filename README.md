@@ -15,6 +15,9 @@ A smooth sliding motion is achieved by using the LSL function `llSetKeyframedMot
     - Can configure the slide distance
 - Settings are saved in the object's linkset datastore
     - Customized settings persist across resets etc
+- Audio clips are played during movement, one for opening and one for closing
+    - Default audio clips are a door opening and a door closing
+    - Customize the audio clips by dropping sound files named "Open" and "Close" in the object Contents
 - Collisions with other nonphysical or keyframed objects are ignored
 - Collisions with physical objects will be computed and reported
     - The sliding object will be unaffected by those collisions
@@ -64,9 +67,21 @@ The Slider dialog menu provides the following Slider control buttons:
     - Sets the slide axis to the object's Y-axis
 - `Z-AXIS`
     - Sets the slide axis to the object's Z-axis
+- `REVERSE`
+    - Reverses the orientation of slide movement
+- `FORWARD`
+    - Returns the orientation of slide movement to forward after reversing
+- `SLIDE`
+    - Slides the object, closing if open or opening if closed
 - `CLEAR`
     - Clear the linkset datastore, reset to default settings, restore to original position
+- `RESET`
+    - Resets the script, leaving the datastore intact
 - `DISTANCE`
     - Select or enter a slide distance
+- `SPEED`
+    - Select or enter a slide speed
+    - `CONSTANT` button on the SPEED menu fixes speed regardless of distance changes
+    - `VARIABLE` button on the SPEED menu causes speed to increase as distance increases
 - `EXIT`
     - Exit the dialog menu and return to the active state
