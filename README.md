@@ -7,6 +7,9 @@ A smooth sliding motion is achieved by using the LSL function `llSetKeyframedMot
 Settings and customization are saved in the object's linkset datastore and persist
 across resets, deletions, and re-rez.
 
+The Truth &amp; Beauty Smooth Slider is available on the
+[Second Life Marketplace](https://marketplace.secondlife.com/p/Truth-Beauty-Smooth-Slider/28771420)
+
 ## Table of Contents
 
 - [Features](#features)
