@@ -20,7 +20,7 @@
 //   - Add debug and info menu entries
 //   - Loop sound and stop sound when move complete
 
-string    VERSION  = "1.0.3";
+string    VERSION  = "1.0.4";
 
 integer   Access   = 2;        // 0 = Owner, 1 = Group, 2 = Public
 integer   Constant = TRUE;     // Whether to maintain a constant speed
@@ -266,6 +266,9 @@ displayMainMenu() {
     menuMessage = getInfo(FALSE);
     menuMessage += "\nCLEAR = Clear storage, reset to default values";
     menuMessage += "\nRESET = Reset scripts, storage persists\n";
+    if (!Enabled) {
+        main_menu += ["ENABLE"];
+    }
     if (Access == 2) {
         main_menu += ["OWNER", "GROUP"];
     } else if (Access == 1) {
@@ -280,7 +283,11 @@ displayMainMenu() {
     } else if (Axis == "Z") {
         main_menu += ["X-AXIS", "Y-AXIS"];
     }
-    main_menu += ["CLEAR", "RESET"];
+    if (Enabled) {
+        main_menu += ["CLEAR", "RESET"];
+    } else {
+        main_menu += ["RESET"];
+    }
     if (Reverse) {
         main_menu += ["FORWARD"];
     } else {
@@ -290,7 +297,7 @@ displayMainMenu() {
     if (Enabled) {
         main_menu += ["DISABLE"];
     } else {
-        main_menu += ["ENABLE"];
+        main_menu += ["ENABLE", "CLEAR"];
     }
     if (Debug) {
         main_menu += ["DEBUG OFF", "INFO", "EXIT"];
@@ -577,7 +584,11 @@ default {
                     // Handle dialog menu in its own state
                     state menu;
                 } else {
-                    state opening;
+                    if (Enabled) {
+                        state opening;
+                    } else {
+                        state menu;
+                    }
                 }
             } else {
                 state opening;
@@ -589,7 +600,11 @@ default {
                     // Handle dialog menu in its own state
                     state menu;
                 } else {
-                    state opening;
+                    if (Enabled) {
+                        state opening;
+                    } else {
+                        state menu;
+                    }
                 }
             }
         } else if (Access == 0) {
@@ -599,7 +614,11 @@ default {
                     // Handle dialog menu in its own state
                     state menu;
                 } else {
-                    state opening;
+                    if (Enabled) {
+                        state opening;
+                    } else {
+                        state menu;
+                    }
                 }
             }
         }
@@ -649,8 +668,8 @@ state opening {
                 llOwnerSay("Calling moveToTarget(" + (string)Distance + ") in opening state");
             }
             moveToTarget(Distance);
-            llSetTimerEvent(Duration);
         }
+        llSetTimerEvent(Duration);
     }
 
     timer() {
@@ -704,7 +723,11 @@ state open {
                     // Handle dialog menu in its own state
                     state menu;
                 } else {
-                    state closing;
+                    if (Enabled) {
+                        state closing;
+                    } else {
+                        state menu;
+                    }
                 }
             } else {
                 state closing;
@@ -716,7 +739,11 @@ state open {
                     // Handle dialog menu in its own state
                     state menu;
                 } else {
-                    state closing;
+                    if (Enabled) {
+                        state closing;
+                    } else {
+                        state menu;
+                    }
                 }
             }
         } else if (Access == 0) {
@@ -726,7 +753,11 @@ state open {
                     // Handle dialog menu in its own state
                     state menu;
                 } else {
-                    state closing;
+                    if (Enabled) {
+                        state closing;
+                    } else {
+                        state menu;
+                    }
                 }
             }
         }
@@ -759,8 +790,8 @@ state closing {
                 llOwnerSay("Calling moveToTarget(-" + (string)Distance + ") in closing state");
             }
             moveToTarget(-Distance);
-            llSetTimerEvent(Duration);
         }
+        llSetTimerEvent(Duration);
     }
 
     timer() {
@@ -818,7 +849,11 @@ state closed {
                     // Handle dialog menu in its own state
                     state menu;
                 } else {
-                    state opening;
+                    if (Enabled) {
+                        state opening;
+                    } else {
+                        state menu;
+                    }
                 }
             } else {
                 state opening;
@@ -830,7 +865,11 @@ state closed {
                     // Handle dialog menu in its own state
                     state menu;
                 } else {
-                    state opening;
+                    if (Enabled) {
+                        state opening;
+                    } else {
+                        state menu;
+                    }
                 }
             }
         } else if (Access == 0) {
@@ -840,7 +879,11 @@ state closed {
                     // Handle dialog menu in its own state
                     state menu;
                 } else {
-                    state opening;
+                    if (Enabled) {
+                        state opening;
+                    } else {
+                        state menu;
+                    }
                 }
             }
         }
