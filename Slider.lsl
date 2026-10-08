@@ -489,14 +489,15 @@ setDefaults() {
         Distance = Size.z;
     } else {
         Axis = "X";
-        linksetDataWrite(Owner, AXIS_LSD_KEY, Axis, "Slide axis");
         Distance = Size.x;
     }
     // Default Speed is 1 mps
     Duration = Distance;
-    Speed = 1.0;
-    linksetDataWrite(Owner, DURATION_LSD_KEY, (string)Duration, "Duration of the slide");
-    linksetDataWrite(Owner, SPEED_LSD_KEY, (string)Speed, "Speed of the slide");
+    Speed    = 1.0;
+    Access   = 2;
+    Constant = TRUE;
+    Reverse  = FALSE;
+    setDatastoreValues(Owner);
 }
 
 default {
@@ -530,9 +531,14 @@ default {
             PRIM_PHYSICS, FALSE
         ]);
         // Define the distance to move (using the X dimension of its size)
+        // setDefaults() performs a Datastore update
         if (Distance == -9999.9) {
             setDefaults();
+        } else {
+            setDatastoreValues(Owner);
         }
+
+        // Nothing after here in state_entry() should set any properties stored in the datastore
         setOpenPos(Axis, Distance);
         // Set open position
         if (Debug) {
@@ -540,8 +546,6 @@ default {
             llOwnerSay("Home     = " + (string)Home);
             llOwnerSay("Open     = " + (string)Open);
         }
-
-        setDatastoreValues(Owner);
 
         // Compute a negative communications channel based on prim UUID
         dialogChannel   = 0x80000000 | (integer) ( "0x" + (string) llGetKey() );
@@ -1126,7 +1130,6 @@ state confirm {
             }
             Axis = "X";
             setDefaults();
-            setDatastoreValues(id);
             state default;
         } else if (message == "NO") {
             if (Debug) llOwnerSay("Clear linkset storage action cancelled.");
