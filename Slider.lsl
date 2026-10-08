@@ -1,4 +1,4 @@
-///////////////////// Slider \\\\\\\\\\\\\\\\\\\\\\\
+////////////////// Smooth Slider \\\\\\\\\\\\\\\\\\\
 //                                                //
 //    Smooth Object Slide and Return on Touch     //
 ////////////////////////////////////////////////////
@@ -116,7 +116,7 @@ string getInfo(integer show) {
     // Retrieve current datastore values
     getDatastoreValues();
 
-    string info  = "Truth & Beauty Slider version " + VERSION;
+    string info  = "Truth & Beauty Smooth Slider " + VERSION;
     string slurl = getSlurl();
     info += "\nLocation: \t" + slurl;
     info += "\nState:    \t";
@@ -189,7 +189,7 @@ displayDistanceMenu() {
     inDistanceMenu = TRUE;
     inSpeedMenu    = FALSE;
 
-    menuMessage = "\nTruth & Beauty Slider " + VERSION;
+    menuMessage = "\nTruth & Beauty Smooth Slider " + VERSION;
     menuMessage += "\nCurrent Slide Distance:\t" + (string)Distance;
     menuMessage += "\nSelect a slide distance or ENTER to enter a custom value for distance";
     dist_menu += ["0.25 M", "0.5 M", "0.75 M"];
@@ -219,7 +219,7 @@ displaySpeedMenu() {
     inSpeedMenu     = TRUE;
     inDistanceMenu  = FALSE;
 
-    menuMessage = "\nTruth & Beauty Slider " + VERSION;
+    menuMessage = "\nTruth & Beauty Smooth Slider " + VERSION;
     menuMessage += "\nCurrent Slide Speed:\t" + (string)Speed;
     if (Constant) {
         menuMessage += "\nCurrent Slide Rate:\tCONSTANT";
@@ -405,11 +405,11 @@ integer linksetDataWrite(key id, string lsdKey, string value, string cfg) {
     integer returnCode = llLinksetDataWrite(lsdKey, val);
     if (returnCode == LINKSETDATA_OK) {
         if (id) {
-            llRegionSayTo(id, 0, "[Slider] " + cfg + " saved.");
+            llRegionSayTo(id, 0, "[Smooth Slider] " + cfg + " saved.");
         }
     } else if (returnCode != LINKSETDATA_NOUPDATE) {
         if (id) {
-            llRegionSayTo(id, 0, "[Slider] " + cfg + " save failed (code " + (string)returnCode + ").");
+            llRegionSayTo(id, 0, "[Smooth Slider] " + cfg + " save failed (code " + (string)returnCode + ").");
         }
     }
     return returnCode;
@@ -607,13 +607,18 @@ default {
 
     on_rez(integer num) {
         Owner = llGetOwner();
-        string slurl = getSlurl();
-        llOwnerSay("The Truth & Beauty Slider located at " + slurl + " is now active.");
-        llOwnerSay("Touch to slide open and close. Long touch to open the menu.");
-        llOwnerSay("Slider updates are free for life and will be available at:");
-        llOwnerSay("    https://github.com/missyrestless/Slider/releases");
-        llOwnerSay("The latest Truth & Beauty Slider documentation can be found at:");
-        llOwnerSay("    https://github.com/missyrestless/Slider#readme");
+        string rezname = "Truth & Beauty Smooth Slider (example, rez me)";
+        string newname = "Smooth Slider Example";
+        if (llGetObjectName() == rezname) {
+            llSetObjectName(newname);
+        }
+        getInfo(TRUE);
+        string info = "\nTouch to slide open and close. Long touch to open the menu.";
+        info += "\nSmooth Slider updates are free for life and will be available at:";
+        info += "\n    https://github.com/missyrestless/Slider/releases";
+        info += "\nThe latest Truth & Beauty Smooth Slider documentation can be found at:";
+        info += "\n    https://github.com/missyrestless/Slider#readme";
+        llOwnerSay(info);
         llResetScript();
     }
 
@@ -1025,7 +1030,7 @@ state menu {
                     }
                 }
             } else {
-                llRegionSayTo(id, 0, "[Slider] " + valu + " is not a valid number.");
+                llRegionSayTo(id, 0, "[Smooth Slider] " + valu + " is not a valid number.");
             }
 
             if (inputListen != -1) {

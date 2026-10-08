@@ -1,5 +1,5 @@
-Truth & Beauty Slider
-──────────────────────
+Truth & Beauty Smooth Slider
+─────────────────────────────
 
 Slide an object along one of its axes when touched, slide back when touched again.
 
@@ -50,7 +50,7 @@ The owner of the object or members of the object's group can access a dialog men
 Menu
 ─────
 
-The Slider dialog menu provides the following Slider control buttons:
+The Smooth Slider dialog menu provides the following Slider control buttons:
 
 - 'DISABLE'
     - Disable the slide, only the dialog menu will be available
@@ -90,7 +90,7 @@ The Slider dialog menu provides the following Slider control buttons:
 Linkset Datastore
 ──────────────────
 
-The Truth & Beauty Slider can be customized via the dialog menus. These customizations are saved in the Linkset Datastore. This feature allows the Slider to store up to 128 Kilobytes of persistent storage directly on the root prim.
+The Truth & Beauty Smooth Slider can be customized via the dialog menus. These customizations are saved in the Linkset Datastore. This feature allows the Slider to store up to 128 Kilobytes of persistent storage directly on the root prim.
 
 The key benefit of using the Linkset Datastore to save customizations is the persistence of the saved settings. Saved customization persists across resets, script changes, even script deletion as this data is associated with the root prim rather than the script.
 
@@ -123,6 +123,6 @@ Currently the 'Slider' settings saved in the Linkset Datastore are as follows:
 Slider Volatile Memory
 ──────────────────────
 
-Truth & Beauty Slider settings not stored in the Linkset Datastore are maintained in script memory and do not persist across resets etc. This is intentional and allows some Slider properties to be altered and re-saved with a script reset.
+Truth & Beauty Smooth Slider settings not stored in the Linkset Datastore are maintained in script memory and do not persist across resets etc. This is intentional and allows some Slider properties to be altered and re-saved with a script reset.
 
 For example, to change the Slider's setting for the "closed" position and rotation of the object, simply move the object to the location you wish to set for its closed position and rotate it to set its desired home rotation. Once positioned and rotated, reset the scripts using the dialog menu (Long touch -> RESET) or manually (Right click -> More -> More -> Scripts -> Reset Scripts).

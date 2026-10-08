@@ -1,4 +1,4 @@
-# Truth &amp; Beauty Slider
+# Truth &amp; Beauty Smooth Slider
 
 Slide an object along one of its axes when touched, slide back when touched again.
 
@@ -61,7 +61,7 @@ with a long touch (click and hold for 2 seconds before releasing the mouse butto
 
 ## Menu
 
-The Slider dialog menu provides the following Slider control buttons:
+The Smooth Slider dialog menu provides the following Slider control buttons:
 
 - `DISABLE`
     - Disable the slide, only the dialog menu will be available
@@ -100,7 +100,7 @@ The Slider dialog menu provides the following Slider control buttons:
 
 ## Linkset Datastore
 
-The Truth &amp; Beauty Slider can be customized via the dialog menus. These
+The Truth &amp; Beauty Smooth Slider can be customized via the dialog menus. These
 customizations are saved in the Linkset Datastore. This feature allows the Slider
 to store up to 128 Kilobytes of persistent storage directly on the root prim.
 
@@ -140,7 +140,7 @@ Currently the `Slider` settings saved in the Linkset Datastore are as follows:
 
 ### Slider Volatile Memory
 
-Truth &amp; Beauty Slider settings not stored in the Linkset Datastore are maintained
+Truth &amp; Beauty Smooth Slider settings not stored in the Linkset Datastore are maintained
 in script memory and do not persist across resets etc. This is intentional and allows
 some Slider properties to be altered and re-saved with a script reset.
 

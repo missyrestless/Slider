@@ -33,7 +33,7 @@ else
   exit 1
 fi
 
-ANNO="Slider release, version ${VERSION}"
+ANNO="Smooth Slider version ${VERSION}"
 
 if [ -f ${HOME}/.mrprivate ]; then
   source ${HOME}/.mrprivate
@@ -43,7 +43,7 @@ make clean
 make
 [ -x trim_lslo ] && ./trim_lslo
 
-PRODUCT="Slider"
+PRODUCT="SmoothSlider"
 tar cf - *.lslo *.lsl \
          LICENSE \
          COPYRIGHT \
