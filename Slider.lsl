@@ -6,7 +6,7 @@
 //   - Add linkset datastore support
 //   - Customize slide axis and distance
 
-string  VERSION = "1.0.2";
+string    VERSION  = "1.0.3";
 
 integer   Access   = 2;        // 0 = Owner, 1 = Group, 2 = Public
 integer   Constant = TRUE;     // Whether to maintain a constant speed
@@ -50,10 +50,20 @@ string  menuMessage;
 
 // Linkset Data Keys
 //
+// Access restrictions
+string  ACCESS_LSD_KEY    = "access";
+// Slide speed rate
+string  CONSTANT_LSD_KEY  = "constant";
 // Distance to slide
 string  DIST_LSD_KEY      = "dist";
+// Duration of the slide
+string  DURATION_LSD_KEY  = "duration";
+// Speed of the slide
+string  SPEED_LSD_KEY     = "speed";
 // Slide axis
 string  AXIS_LSD_KEY      = "axis";
+// Slide orientation
+string  REVERSE_LSD_KEY   = "reverse";
 
 moveToTarget(float dst) {
     if (Reverse) {
@@ -263,20 +273,40 @@ getDatastoreValues() {
     //
     // Retrieve any configuration values stored in the linkset datastore
     //
+    // Access restrictions
+    linksetValue = llLinksetDataRead(ACCESS_LSD_KEY);
+    if (linksetValue != "") {
+        Access = (integer)linksetValue;
+    }
+    // Slide speed rate
+    linksetValue = llLinksetDataRead(CONSTANT_LSD_KEY);
+    if (linksetValue != "") {
+        Constant = (integer)linksetValue;
+    }
     // Distance to slide
     linksetValue = llLinksetDataRead(DIST_LSD_KEY);
     if (linksetValue != "") {
         Distance = (float)linksetValue;
-        if (Constant) {
-            Duration = Distance / Speed;
-        } else {
-            Speed = Distance / Duration;
-        }
+    }
+    // Duration of the slide
+    linksetValue = llLinksetDataRead(DURATION_LSD_KEY);
+    if (linksetValue != "") {
+        Duration = (float)linksetValue;
+    }
+    // Speed of the slide
+    linksetValue = llLinksetDataRead(SPEED_LSD_KEY);
+    if (linksetValue != "") {
+        Speed = (float)linksetValue;
     }
     // Slide axis
     linksetValue = llLinksetDataRead(AXIS_LSD_KEY);
     if (linksetValue != "") {
         Axis = linksetValue;
+    }
+    // Slide orientation
+    linksetValue = llLinksetDataRead(REVERSE_LSD_KEY);
+    if (linksetValue != "") {
+        Reverse = (integer)linksetValue;
     }
 }
 
@@ -284,10 +314,20 @@ setDatastoreValues(key id) {
     //
     // Set all configuration values stored in the linkset datastore
     //
+    // Access restrictions
+    linksetDataWrite(id, ACCESS_LSD_KEY, (string)Access, "Access restrictions");
+    // Slide speed rate
+    linksetDataWrite(id, CONSTANT_LSD_KEY, (string)Constant, "Slide speed rate");
     // Distance to slide
     linksetDataWrite(id, DIST_LSD_KEY, (string)Distance, "Distance to slide");
+    // Duration of the slide
+    linksetDataWrite(id, DURATION_LSD_KEY, (string)Duration, "Duration of the slide");
+    // Speed of the slide
+    linksetDataWrite(id, SPEED_LSD_KEY, (string)Speed, "Speed of the slide");
     // Slide axis
     linksetDataWrite(id, AXIS_LSD_KEY, Axis, "Slide axis");
+    // Slide orientation
+    linksetDataWrite(id, REVERSE_LSD_KEY, (string)Reverse, "Slide orientation");
 }
 
 // Writes the provided key/value pair to the prim's linkset datastore
@@ -318,6 +358,7 @@ setOpenPos(string dir, float dist) {
         Open = Home + <0.0, 0.0, dist>;
     } else {
         Axis = "X";
+        linksetDataWrite(Owner, AXIS_LSD_KEY, Axis, "Slide axis");
         Open = Home + <dist, 0.0, 0.0>;
     }
 }
@@ -372,11 +413,14 @@ setDefaults() {
         Distance = Size.z;
     } else {
         Axis = "X";
+        linksetDataWrite(Owner, AXIS_LSD_KEY, Axis, "Slide axis");
         Distance = Size.x;
     }
     // Default Speed is 1 mps
     Duration = Distance;
     Speed = 1.0;
+    linksetDataWrite(Owner, DURATION_LSD_KEY, (string)Duration, "Duration of the slide");
+    linksetDataWrite(Owner, SPEED_LSD_KEY, (string)Speed, "Speed of the slide");
 }
 
 default {
@@ -796,35 +840,42 @@ state menu {
                 }
             } else if (message == "CONSTANT") {
                 Constant = TRUE;
+                linksetDataWrite(id, CONSTANT_LSD_KEY, (string)Constant, "Slide speed rate");
             } else if (message == "VARIABLE") {
                 Constant = FALSE;
+                linksetDataWrite(id, CONSTANT_LSD_KEY, (string)Constant, "Slide speed rate");
             } else if (message == "DISTANCE") {
                 displayDistanceMenu();
                 return;
             } else if (message == "FORWARD") {
                 Reverse = FALSE;
                 setOpenPos(Axis, Distance);
+                linksetDataWrite(id, REVERSE_LSD_KEY, (string)Reverse, "Slide orientation");
             } else if (message == "REVERSE") {
                 Reverse = TRUE;
                 setOpenPos(Axis, Distance);
+                linksetDataWrite(id, REVERSE_LSD_KEY, (string)Reverse, "Slide orientation");
             } else if (message == "SPEED") {
                 displaySpeedMenu();
                 return;
             } else if (message == "OWNER") {
                 if (id == Owner) {
                     Access = 0;
+                    linksetDataWrite(id, ACCESS_LSD_KEY, (string)Access, "Access restrictions");
                 } else {
                     if (id) llRegionSayTo(id, 0, "Only the owner can set the access privilages");
                 }
             } else if (message == "GROUP") {
                 if (id == Owner) {
                     Access = 1;
+                    linksetDataWrite(id, ACCESS_LSD_KEY, (string)Access, "Access restrictions");
                 } else {
                     if (id) llRegionSayTo(id, 0, "Only the owner can set the access privilages");
                 }
             } else if (message == "PUBLIC") {
                 if (id == Owner) {
                     Access = 2;
+                    linksetDataWrite(id, ACCESS_LSD_KEY, (string)Access, "Access restrictions");
                 } else {
                     if (id) llRegionSayTo(id, 0, "Only the owner can set the access privilages");
                 }
@@ -862,16 +913,20 @@ state menu {
                 Distance = (float)dst;
                 if (Constant) {
                     Duration = Distance / Speed;
+                    linksetDataWrite(Owner, DURATION_LSD_KEY, (string)Duration, "Duration of the slide");
                 } else {
                     Speed = Distance / Duration;
+                    linksetDataWrite(Owner, SPEED_LSD_KEY, (string)Speed, "Speed of the slide");
                 }
                 linksetDataWrite(id, DIST_LSD_KEY, dst, "Distance to slide");
                 setOpenPos(Axis, Distance);
             } else if (llGetSubString(message, -4, -1) == " MPS") {
                 string vel = llDeleteSubString(message, -4, -1);
                 Speed = (float)vel;
+                linksetDataWrite(Owner, SPEED_LSD_KEY, (string)Speed, "Speed of the slide");
                 if (Constant) {
                     Duration = Distance / Speed;
+                    linksetDataWrite(Owner, DURATION_LSD_KEY, (string)Duration, "Duration of the slide");
                 }
             }
             // Re-send the dialog to keep the menu open
@@ -889,15 +944,19 @@ state menu {
                     Distance = (float)valu;
                     if (Constant) {
                         Duration = Distance / Speed;
+                        linksetDataWrite(Owner, DURATION_LSD_KEY, (string)Duration, "Duration of the slide");
                     } else {
                         Speed = Distance / Duration;
+                        linksetDataWrite(Owner, SPEED_LSD_KEY, (string)Speed, "Speed of the slide");
                     }
                     linksetDataWrite(id, DIST_LSD_KEY, valu, "Distance to slide");
                     setOpenPos(Axis, Distance);
                 } else if (inSpeedMenu) {
                     Speed = (float)valu;
+                    linksetDataWrite(Owner, SPEED_LSD_KEY, (string)Speed, "Speed of the slide");
                     if (Constant) {
                         Duration = Distance / Speed;
+                        linksetDataWrite(Owner, DURATION_LSD_KEY, (string)Duration, "Duration of the slide");
                     }
                 }
             } else {

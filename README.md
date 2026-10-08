@@ -4,6 +4,14 @@ Slide an object along one of its axes when touched, slide back when touched agai
 
 A smooth sliding motion is achieved by using the LSL function `llSetKeyframedMotion` (KFM).
 
+## Table of Contents
+
+- [Features](#features)
+- [Requirements and Limitations](#requirements-and-limitations)
+- [Usage](#usage)
+- [Menu](#menu)
+- [Linkset Datastore](#linkset-datastore)
+
 ## Features
 
 - Smooth slide
@@ -51,10 +59,6 @@ The Slider dialog menu provides the following Slider control buttons:
     - Disable the slide, only the dialog menu will be available
 - `ENABLE`
     - Enable the slide, touches will trigger slides
-- `OPEN`
-    - Slide the object to its open state
-- `CLOSE`
-    - Slide the object to its closed state
 - `OWNER`
     - Restrict access to the Owner of the object
 - `GROUP`
@@ -85,3 +89,37 @@ The Slider dialog menu provides the following Slider control buttons:
     - `VARIABLE` button on the SPEED menu causes speed to increase as distance increases
 - `EXIT`
     - Exit the dialog menu and return to the active state
+
+## Linkset Datastore
+
+The Truth &amp; Beauty Slider can be customized via the dialog menus. These customizations
+are saved in the Linkset Datastore. This feature allows the Slider to store up to 128KiB
+of persistent key-value data directly on the root prim.
+
+The key benefit of using the Linkset Datastore to save customizations is the persistence
+of the saved settings. Saved customization persists across resets, script changes, even
+script deletion as this data is associated with the root prim rather than the script.
+
+For example, using the dialog menus to change the slide axis to vertical and slide distance
+to 10 meters with constant speed would store the axis, distance, and constant speed settings
+in the prim's datastore. These customizations would survive a script reset, they would
+survive an update in which the existing `Slider` script was deleted and a new `Slider`
+script dropped into the object's Contents. They even survive if the object is taken into
+inventory and re-rezzed.
+
+Currently the `Slider` settings saved in the Linkset Datastore are as follows:
+
+- Access restrictions
+    - Public, Group, or Owner Only access
+- Slide speed rate
+    - Whether the slide speed increases with an increase in distance or remains constant
+- Distance to slide
+    - How far the object slides 
+- Duration of the slide
+    - How long it takes to complete the slide
+- Speed of the slide
+    - How fast the object slides
+- Slide axis
+    - Along which axis the object slides
+- Slide orientation
+    - Whether the object slides in a positive or negative direction
