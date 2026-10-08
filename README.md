@@ -59,6 +59,10 @@ By default the object slides along its X-axis and slides the size of its X-axis 
 The owner of the object or members of the object's group can access a dialog menu
 with a long touch (click and hold for 2 seconds before releasing the mouse button).
 
+An example Smooth Slider object is included. The example Smooth Slider is a single prim.
+Drag and drop the `Truth & Beauty Smooth Slider (example, rez me)` object from your
+inventory onto the ground. Click to slide, long click to open the dialog menu.
+
 ## Menu
 
 The Smooth Slider dialog menu provides the following Slider control buttons:

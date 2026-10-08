@@ -118,7 +118,7 @@ string getInfo(integer show) {
 
     string info  = "Truth & Beauty Smooth Slider " + VERSION;
     string slurl = getSlurl();
-    info += "\nLocation: \t" + slurl;
+    info += "\nLocation:\t" + slurl;
     info += "\nState:    \t";
     if (Enabled) {
         info += "ENABLED";
@@ -140,7 +140,7 @@ string getInfo(integer show) {
     } else {
         info += "UNKNOWN";
     }
-    info += "\nRate:     \t";
+    info += "\nRate:      \t";
     if (Constant) {
         info += "CONSTANT";
     } else {
@@ -148,15 +148,15 @@ string getInfo(integer show) {
     }
     info += "\nDistance: \t" + (string)Distance;
     info += "\nDuration: \t" + (string)Duration;
-    info += "\nSpeed:    \t" + (string)Speed;
-    info += "\nAxis:     \t" + Axis;
-    info += "\nDirection:\t";
+    info += "\nSpeed:     \t" + (string)Speed;
+    info += "\nAxis:       \t" + Axis;
+    info += "\nDirection: \t";
     if (Reverse) {
         info += "REVERSE";
     } else {
         info += "FORWARD";
     }
-    info += "\nDebug:    \t";
+    info += "\nDebug:      \t";
     if (Debug) {
         info += "ON";
     } else {
@@ -264,8 +264,8 @@ displayMainMenu() {
     inSpeedMenu    = FALSE;
 
     menuMessage = getInfo(FALSE);
-    menuMessage += "\nCLEAR = Clear storage, reset to default values";
-    menuMessage += "\nRESET = Reset scripts, storage persists\n";
+    menuMessage += "\n\nCLEAR = Clear storage, reset to default values";
+    menuMessage += "\nRESET = Reset scripts, storage persists\n\n";
     if (!Enabled) {
         main_menu += ["ENABLE"];
     }
