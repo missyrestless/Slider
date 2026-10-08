@@ -993,6 +993,7 @@ state menu {
                     if (id) llRegionSayTo(id, 0, "Only the owner can set the access privilages");
                 }
             } else if (message == "ENTER") {
+                pageNumber = 1;
                 if (inputListen != -1) llListenRemove(inputListen);
                 inputListen = llListen(inputChannel, "", id, "");
                 llSetTimerEvent(LISTEN_TTL);
@@ -1005,8 +1006,10 @@ state menu {
                 }
                 return; // Exit the listen event
             } else if (message == "MAIN MENU") {
+                pageNumber = 1;
                 displayMainMenu();
             } else if (message == "EXIT") {
+                pageNumber = 1;
                 // Return to the currently active state
                 if (State == "default") {
                     state default;
