@@ -119,7 +119,7 @@ string getInfo(integer show) {
     string info  = "Truth & Beauty Smooth Slider " + VERSION;
     string slurl = getSlurl();
     info += "\nLocation:\t" + slurl;
-    info += "\nState:    \t";
+    info += "\nState:     \t";
     if (Enabled) {
         info += "ENABLED";
     } else {
@@ -130,7 +130,7 @@ string getInfo(integer show) {
     } else {
         info += " and CLOSED";
     }
-    info += "\nAccess:   \t";
+    info += "\nAccess:    \t";
     if (Access == 2) {
         info += "PUBLIC";
     } else if (Access == 1) {
@@ -140,7 +140,7 @@ string getInfo(integer show) {
     } else {
         info += "UNKNOWN";
     }
-    info += "\nRate:      \t";
+    info += "\nRate:       \t";
     if (Constant) {
         info += "CONSTANT";
     } else {
@@ -149,7 +149,7 @@ string getInfo(integer show) {
     info += "\nDistance: \t" + (string)Distance;
     info += "\nDuration: \t" + (string)Duration;
     info += "\nSpeed:     \t" + (string)Speed;
-    info += "\nAxis:       \t" + Axis;
+    info += "\nAxis:        \t" + Axis;
     info += "\nDirection: \t";
     if (Reverse) {
         info += "REVERSE";
