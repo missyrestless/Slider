@@ -1,10 +1,24 @@
-// Smooth Object Slide on touch using llSetKeyframedMotion (KFM)
+///////////////////// Slider \\\\\\\\\\\\\\\\\\\\\\\
+//                                                //
+//    Smooth Object Slide and Return on Touch     //
+////////////////////////////////////////////////////
+//
+////////////////////////////////////////////////////
+// Copyright (c) 2026 Truth & Beauty Lab          //
+// License: MIT                                   //
+// All rights reserved.                           //
+//                                                //
+// Author: Missy Restless missyrestless@gmail.com //
+////////////////////////////////////////////////////
 //
 // 06-Oct-2026 Created by Missy Restless <missyrestless@gmail.com>
 // 07-Oct-2026
 //   - Add dialog menus
 //   - Add linkset datastore support
 //   - Customize slide axis and distance
+// 07-Oct-2026
+//   - Add debug and info menu entries
+//   - Loop sound and stop sound when move complete
 
 string    VERSION  = "1.0.3";
 
@@ -96,6 +110,62 @@ moveToTarget(float dst) {
         llOwnerSay("Calling llSetKeyframedMotion with keyframe = " + llDumpList2String(keyframe, ", "));
     }
     llSetKeyframedMotion(keyframe, []);
+}
+
+string getInfo(integer show) {
+    // Retrieve current datastore values
+    getDatastoreValues();
+
+    string info  = "Truth & Beauty Slider version " + VERSION;
+    string slurl = getSlurl();
+    info += "\nLocation: \t" + slurl;
+    info += "\nState:    \t";
+    if (Enabled) {
+        info += "ENABLED";
+    } else {
+        info += "DISABLED";
+    }
+    if (State == "open") {
+        info += " and OPEN";
+    } else {
+        info += " and CLOSED";
+    }
+    info += "\nAccess:   \t";
+    if (Access == 2) {
+        info += "PUBLIC";
+    } else if (Access == 1) {
+        info += "GROUP";
+    } else if (Access == 0) {
+        info += "OWNER";
+    } else {
+        info += "UNKNOWN";
+    }
+    info += "\nRate:     \t";
+    if (Constant) {
+        info += "CONSTANT";
+    } else {
+        info += "VARIABLE";
+    }
+    info += "\nDistance: \t" + (string)Distance;
+    info += "\nDuration: \t" + (string)Duration;
+    info += "\nSpeed:    \t" + (string)Speed;
+    info += "\nAxis:     \t" + Axis;
+    info += "\nDirection:\t";
+    if (Reverse) {
+        info += "REVERSE";
+    } else {
+        info += "FORWARD";
+    }
+    info += "\nDebug:    \t";
+    if (Debug) {
+        info += "ON";
+    } else {
+        info += "OFF";
+    }
+    if (show) {
+        llOwnerSay(info);
+    }
+    return info;
 }
 
 list arrange(list l) {
@@ -193,25 +263,14 @@ displayMainMenu() {
     inDistanceMenu = FALSE;
     inSpeedMenu    = FALSE;
 
-    menuMessage = "\nTruth & Beauty Slider " + VERSION + "\n";
+    menuMessage = getInfo(FALSE);
     menuMessage += "\nCLEAR = Clear storage, reset to default values";
-    menuMessage += "\nRESET = Reset scripts, storage persists";
-    if (Enabled) {
-        menuMessage += "\nTouch to Slide:\tENABLED";
-        main_menu = ["DISABLE"];
-    } else {
-        menuMessage += "\nTouch to Slide:\tDISABLED";
-        main_menu = ["ENABLE"];
-    }
-    menuMessage += "\nSlide Axis:\t" + Axis + "-AXIS";
+    menuMessage += "\nRESET = Reset scripts, storage persists\n";
     if (Access == 2) {
-        menuMessage += "\nAccess:\tPUBLIC";
         main_menu += ["OWNER", "GROUP"];
     } else if (Access == 1) {
-        menuMessage += "\nAccess:\tGROUP";
         main_menu += ["OWNER", "PUBLIC"];
     } else if (Access == 0) {
-        menuMessage += "\nAccess:\tOWNER";
         main_menu += ["GROUP", "PUBLIC"];
     }
     if (Axis == "X") {
@@ -221,13 +280,23 @@ displayMainMenu() {
     } else if (Axis == "Z") {
         main_menu += ["X-AXIS", "Y-AXIS"];
     }
-    // main_menu += ["X-AXIS", "Y-AXIS", "Z-AXIS"];
+    main_menu += ["CLEAR", "RESET"];
     if (Reverse) {
         main_menu += ["FORWARD"];
     } else {
         main_menu += ["REVERSE"];
     }
-    main_menu += ["SLIDE", "DISTANCE", "SPEED", "CLEAR", "RESET", "EXIT"];
+    main_menu += ["SLIDE", "DISTANCE", "SPEED", "EXIT"];
+    if (Enabled) {
+        main_menu += ["DISABLE"];
+    } else {
+        main_menu += ["ENABLE"];
+    }
+    if (Debug) {
+        main_menu += ["DEBUG OFF", "INFO", "EXIT"];
+    } else {
+        main_menu += ["DEBUG ON", "INFO", "EXIT"];
+    }
     ShowMenu(menuMessage, main_menu);
 }
 
@@ -378,18 +447,18 @@ string getSlurl() {
 }
 
 integer isFloat(string input) {
-    // 1. Clean up whitespace
+    // Clean up whitespace
     input = llStringTrim(input, STRING_TRIM);
-    // 2. Drop an optional leading "+" since casting to string removes it
+    // Drop an optional leading "+" since casting to string removes it
     if (llGetSubString(input, 0, 0) == "+") {
         input = llGetSubString(input, 1, -1);
     }
-    // 3. Reject empty string early
+    // Reject empty string early
     if (input == "") return FALSE;
-    // 4. Cast to float, then back to string, and compare
+    // Cast to float, then back to string, and compare
     float f = (float)input;
     if ((string)f == input) return TRUE;
-    // 5. Handle trailing zeros or missing decimal formats (e.g., "5" vs "5.000000")
+    // Handle trailing zeros or missing decimal formats (e.g., "5" vs "5.000000")
     // If the input represents the exact same float value, it's valid
     if ((float)((string)f) == (float)input) {
         // Prevent false positives on completely invalid text (which LSL casts to 0.0)
@@ -566,7 +635,7 @@ state opening {
     state_entry() {
         if (Enabled) {
             if (SOUND_ON_OPEN) {
-                llPlaySound(SOUND_ON_OPEN, SOUND_VOLUME);
+                llLoopSound(SOUND_ON_OPEN, SOUND_VOLUME);
             }
             if (SOUND_ON_CLOSE) {
                 llPreloadSound(SOUND_ON_CLOSE);
@@ -589,14 +658,9 @@ state opening {
 state open {
     state_entry() {
         State = "open";
-        // Finalize move to open position
-        // if (Debug) {
-        //     llOwnerSay("Finalize move to open position with call to:\nllSetLinkPrimitiveParamsFast(LINK_ROOT, [PRIM_POSITION, " + (string)Open + ", PRIM_ROTATION, " + (string)Rot + "])");
-        // }
-        // llSetLinkPrimitiveParamsFast(LINK_ROOT, [
-        //     PRIM_POSITION, Open,
-        //     PRIM_ROTATION, Rot
-        // ]);
+        if (SOUND_ON_OPEN) {
+            llLinkStopSound(LINK_THIS);
+        }
     }
 
     touch_start(integer num_detected) {
@@ -681,7 +745,7 @@ state closing {
     state_entry() {
         if (Enabled) {
             if (SOUND_ON_CLOSE) {
-                llPlaySound(SOUND_ON_CLOSE, SOUND_VOLUME);
+                llLoopSound(SOUND_ON_CLOSE, SOUND_VOLUME);
             }
             if (SOUND_ON_OPEN) {
                 llPreloadSound(SOUND_ON_OPEN);
@@ -708,14 +772,9 @@ state closing {
 state closed {
     state_entry() {
         State = "closed";
-        // Finalize move to closed position
-        // if (Debug) {
-        //     llOwnerSay("Finalize move to closed position with call to:\nllSetLinkPrimitiveParamsFast(LINK_ROOT, [PRIM_POSITION, " + (string)Home + ", PRIM_ROTATION, " + (string)Rot + "])");
-        // }
-        // llSetLinkPrimitiveParamsFast(LINK_ROOT, [
-        //     PRIM_POSITION, Home,
-        //     PRIM_ROTATION, Rot
-        // ]);
+        if (SOUND_ON_CLOSE) {
+            llLinkStopSound(LINK_THIS);
+        }
     }
 
     touch_start(integer num_detected) {
@@ -847,6 +906,12 @@ state menu {
             } else if (message == "DISTANCE") {
                 displayDistanceMenu();
                 return;
+            } else if (message == "DEBUG OFF") {
+                Debug = FALSE;
+            } else if (message == "DEBUG ON") {
+                Debug = TRUE;
+            } else if (message == "INFO") {
+                getInfo(TRUE);
             } else if (message == "FORWARD") {
                 Reverse = FALSE;
                 setOpenPos(Axis, Distance);

@@ -17,4 +17,6 @@ make
   mkdir -p ${DEST}
 
   cp Slider.lslo ${DEST}/Slider
+  cp README.txt ${DEST}/README
+  cp COPYRIGHT LICENSE ${DEST}
 }

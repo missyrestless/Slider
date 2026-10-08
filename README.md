@@ -1,8 +1,11 @@
-# Slider
+# Truth &amp; Beauty Slider
 
 Slide an object along one of its axes when touched, slide back when touched again.
 
 A smooth sliding motion is achieved by using the LSL function `llSetKeyframedMotion` (KFM).
+
+Settings and customization are saved in the object's linkset datastore and persist
+across resets, deletions, and re-rez.
 
 ## Table of Contents
 
@@ -11,6 +14,8 @@ A smooth sliding motion is achieved by using the LSL function `llSetKeyframedMot
 - [Usage](#usage)
 - [Menu](#menu)
 - [Linkset Datastore](#linkset-datastore)
+    - [Slider Linkset Datastore](#slider-linkset-datastore)
+    - [Slider Volatile Memory](#slider-volatile-memory)
 
 ## Features
 
@@ -47,9 +52,12 @@ will not work with this script.
 
 Drop the `Slider` script into an object's Contents.
 
-The default settings allow anyone to slide the object by touching it. A second touch will slide the object back to its original position. By default the object slides along its X-axis and slides the size of its X-axis length.
+The default settings allow anyone to slide the object by touching it.
+A second touch will slide the object back to its original position.
+By default the object slides along its X-axis and slides the size of its X-axis length.
 
-The owner of the object or members of the object's group can access a dialog menu with a long touch (click and hold for 2 seconds before releasing the mouse button).
+The owner of the object or members of the object's group can access a dialog menu
+with a long touch (click and hold for 2 seconds before releasing the mouse button).
 
 ## Menu
 
@@ -92,9 +100,9 @@ The Slider dialog menu provides the following Slider control buttons:
 
 ## Linkset Datastore
 
-The Truth &amp; Beauty Slider can be customized via the dialog menus. These customizations
-are saved in the Linkset Datastore. This feature allows the Slider to store up to 128KiB
-of persistent key-value data directly on the root prim.
+The Truth &amp; Beauty Slider can be customized via the dialog menus. These
+customizations are saved in the Linkset Datastore. This feature allows the Slider
+to store up to 128 Kilobytes of persistent storage directly on the root prim.
 
 The key benefit of using the Linkset Datastore to save customizations is the persistence
 of the saved settings. Saved customization persists across resets, script changes, even
@@ -106,6 +114,12 @@ in the prim's datastore. These customizations would survive a script reset, they
 survive an update in which the existing `Slider` script was deleted and a new `Slider`
 script dropped into the object's Contents. They even survive if the object is taken into
 inventory and re-rezzed.
+
+* Inventory &amp; Re-rez: Taking an object to inventory and re-rezzing it will not alter or erase any saved keys.
+* No-Copy vs. Copy Items: The data persists regardless of item permissions. If you shift-drag copy the object in-world, or pull multiple copies from a "copyable" inventory item, all copies will inherit the exact dataset stored at the time the object was saved.
+* Script Resets &amp; Deletions: You can manually reset scripts, use `llResetScript()`, or even delete the scripts entirely from the object; the data will still remain intact inside the prim.
+
+### Slider Linkset Datastore
 
 Currently the `Slider` settings saved in the Linkset Datastore are as follows:
 
@@ -123,3 +137,15 @@ Currently the `Slider` settings saved in the Linkset Datastore are as follows:
     - Along which axis the object slides
 - Slide orientation
     - Whether the object slides in a positive or negative direction
+
+### Slider Volatile Memory
+
+Truth &amp; Beauty Slider settings not stored in the Linkset Datastore are maintained
+in script memory and do not persist across resets etc. This is intentional and allows
+some Slider properties to be altered and re-saved with a script reset.
+
+For example, to change the Slider's setting for the "closed" position and rotation
+of the object, simply move the object to the location you wish to set for its closed
+position and rotate it to set its desired home rotation. Once positioned and rotated,
+reset the scripts using the dialog menu (Long touch -> RESET) or manually
+(Right click -> More -> More -> Scripts -> Reset Scripts).
