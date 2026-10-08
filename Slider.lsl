@@ -116,7 +116,7 @@ string getInfo(integer show) {
     // Retrieve current datastore values
     getDatastoreValues();
 
-    string info  = "Truth & Beauty Smooth Slider " + VERSION;
+    string info  = "Truth & Beauty Smooth Slider " + VERSION + "\n";
     string slurl = getSlurl();
     info += "\nLocation:\t" + slurl;
     info += "\nState:     \t";
@@ -149,14 +149,14 @@ string getInfo(integer show) {
     info += "\nDistance: \t" + (string)Distance;
     info += "\nDuration: \t" + (string)Duration;
     info += "\nSpeed:     \t" + (string)Speed;
-    info += "\nAxis:        \t" + Axis;
-    info += "\nDirection: \t";
+    info += "\nAxis:         \t" + Axis;
+    info += "\nDirection:\t";
     if (Reverse) {
         info += "REVERSE";
     } else {
         info += "FORWARD";
     }
-    info += "\nDebug:      \t";
+    info += "\nDebug:     \t";
     if (Debug) {
         info += "ON";
     } else {
