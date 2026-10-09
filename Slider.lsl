@@ -511,7 +511,7 @@ default {
 
         Distance = -9999.9;
 
-        // Set the stored variable values
+        // Get the stored variable values
         getDatastoreValues();
 
         if (llGetInventoryType("Open") == INVENTORY_SOUND) {
@@ -802,6 +802,9 @@ state closing {
         llSetTimerEvent(0);
         if (Reset) {
             Reset = FALSE;
+            if (SOUND_ON_CLOSE) {
+                llLinkStopSound(LINK_THIS);
+            }
             llResetScript();
         }
         state closed;
@@ -907,6 +910,7 @@ state closed {
 
 state menu {
     state_entry() {
+        pageNumber = 1;
         displayMainMenu();
     }
 
