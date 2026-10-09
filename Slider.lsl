@@ -20,7 +20,7 @@
 //   - Add debug and info menu entries
 //   - Loop sound and stop sound when move complete
 
-string    VERSION  = "1.0.4";
+string    VERSION  = "1.0.5";
 
 integer   Access   = 2;        // 0 = Owner, 1 = Group, 2 = Public
 integer   Constant = TRUE;     // Whether to maintain a constant speed
