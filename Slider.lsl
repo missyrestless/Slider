@@ -27,7 +27,6 @@ integer   Constant = TRUE;     // Whether to maintain a constant speed
 integer   Debug    = FALSE;    // Set to TRUE for verbose debug output
 integer   Enabled  = TRUE;     // Whether touch to slide is enabled
 integer   Reverse  = FALSE;    // Reverse the orientation of movement
-integer   Reset    = FALSE;    // Whether to perform a reset after moving
 string    Axis     = "X";      // Axis on which to slide - X, Y, or Z
 string    State;               // Track the state for dialog menu returns
 float     Distance;            // How far to slide in meters
@@ -506,12 +505,11 @@ default {
         Tcher = NULL_KEY;
         Rot   = llGetRot();
         Home  = llGetPos();
-        Reset = FALSE;
         State = "default";
 
         Distance = -9999.9;
 
-        // Set the stored variable values
+        // Get the stored variable values
         getDatastoreValues();
 
         if (llGetInventoryType("Open") == INVENTORY_SOUND) {
@@ -800,10 +798,6 @@ state closing {
 
     timer() {
         llSetTimerEvent(0);
-        if (Reset) {
-            Reset = FALSE;
-            llResetScript();
-        }
         state closed;
     }
 }
@@ -907,6 +901,7 @@ state closed {
 
 state menu {
     state_entry() {
+        pageNumber = 1;
         displayMainMenu();
     }
 
@@ -943,12 +938,7 @@ state menu {
             } else if (message == "CLEAR") {
                 state confirm;
             } else if (message == "RESET") {
-                if (State == "open") {
-                    Reset = TRUE;
-                    state closing;
-                } else {
                     llResetScript();
-                }
             } else if (message == "CONSTANT") {
                 Constant = TRUE;
                 linksetDataWrite(id, CONSTANT_LSD_KEY, (string)Constant, "Slide speed rate");
