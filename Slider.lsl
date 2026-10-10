@@ -159,20 +159,32 @@ string getInfo(integer show) {
     info += "\nSpeed:     \t" + (string)Speed;
     info += "\nAxis:         \t" + Axis;
     info += "\nDirection:\t<";
-    if (xReverse) {
-        info += "MINUS, ";
+    if (contains(Axis, "X")) {
+        if (xReverse) {
+            info += "MINUS, ";
+        } else {
+            info += "PLUS, ";
+        }
     } else {
-        info += "PLUS, ";
+        info += "────, ";
     }
-    if (yReverse) {
-        info += "MINUS, ";
+    if (contains(Axis, "Y")) {
+        if (yReverse) {
+            info += "MINUS, ";
+        } else {
+            info += "PLUS, ";
+        }
     } else {
-        info += "PLUS, ";
+        info += "────, ";
     }
-    if (zReverse) {
-        info += "MINUS>";
+    if (contains(Axis, "Z")) {
+        if (zReverse) {
+            info += "MINUS>";
+        } else {
+            info += "PLUS>";
+        }
     } else {
-        info += "PLUS>";
+        info += "────>";
     }
     info += "\nDebug:     \t";
     if (Debug) {
@@ -197,6 +209,26 @@ list arrange(list l) {
         l = llList2List(l, 0, -4);
     } while (TRUE);
     return [];
+}
+
+integer contains(string haystack, string needle) {
+    return ~llSubStringIndex(haystack, needle);
+}
+
+setSets(string axis) {
+    if (axis == "X") {
+        SetX = TRUE;
+        SetY = FALSE;
+        SetZ = FALSE;
+    } else if (axis == "Y") {
+        SetX = FALSE;
+        SetY = TRUE;
+        SetZ = FALSE;
+    } else if (axis == "Z") {
+        SetX = FALSE;
+        SetY = FALSE;
+        SetZ = TRUE;
+    }
 }
 
 displayDirectionMenu() {
@@ -365,9 +397,9 @@ displayMainMenu() {
     if (Multi) {
         menuMessage += "\nSINGLE = Slide along a single axis";
     } else {
-        menuMessage += "\nMULTI = Slide along multiple axes";
+        menuMessage += "\nMULTI  = Slide along multiple axes";
     }
-    menuMessage += "\nRESET = Reset scripts, storage persists\n\n";
+    menuMessage += "\nRESET = Reset scripts, storage persists";
     if (!Enabled) {
         main_menu += ["ENABLE"];
     }
@@ -596,17 +628,17 @@ setDefaults() {
         Distance.x = Size.x;
         Distance.y = 0.0;
         Distance.z = 0.0;
-        SetX = TRUE;
+        setSets("X");
     } else if (Axis == "Y") {
         Distance.x = 0.0;
         Distance.y = Size.y;
         Distance.z = 0.0;
-        SetY = TRUE;
+        setSets("Y");
     } else if (Axis == "Z") {
         Distance.x = 0.0;
         Distance.y = 0.0;
         Distance.z = Size.z;
-        SetZ = TRUE;
+        setSets("Z");
     } else if (Axis == "XY") {
         Distance.x = Size.x;
         Distance.y = Size.y;
@@ -1089,25 +1121,17 @@ state menu {
                     state opening;
                 }
             } else if (message == "X-AXIS") {
-                SetX = TRUE;
-                SetY = FALSE;
-                SetZ = FALSE;
+                setSets("X");
             } else if (message == "Y-AXIS") {
-                SetX = FALSE;
-                SetY = TRUE;
-                SetZ = FALSE;
+                setSets("Y");
             } else if (message == "Z-AXIS") {
-                SetX = FALSE;
-                SetY = FALSE;
-                SetZ = TRUE;
+                setSets("Z");
             } else if (message == "X") {
                 Axis = "X";
                 if (Distance.x == 0.0) {
                     setDefaults();
                 }
-                SetX  = TRUE;
-                SetY  = FALSE;
-                SetZ  = FALSE;
+                setSets("X");
                 Multi = FALSE;
                 setOpenPos(Distance);
                 linksetDataWrite(id, AXIS_LSD_KEY, Axis, "Slide axis");
@@ -1116,9 +1140,7 @@ state menu {
                 if (Distance.y == 0.0) {
                     setDefaults();
                 }
-                SetX  = FALSE;
-                SetY  = TRUE;
-                SetZ  = FALSE;
+                setSets("Y");
                 Multi = FALSE;
                 setOpenPos(Distance);
                 linksetDataWrite(id, AXIS_LSD_KEY, Axis, "Slide axis");
@@ -1127,9 +1149,7 @@ state menu {
                 if (Distance.z == 0.0) {
                     setDefaults();
                 }
-                SetX  = FALSE;
-                SetY  = FALSE;
-                SetZ  = TRUE;
+                setSets("Z");
                 Multi = FALSE;
                 setOpenPos(Distance);
                 linksetDataWrite(id, AXIS_LSD_KEY, Axis, "Slide axis");
@@ -1140,21 +1160,22 @@ state menu {
                 if (Distance == ZERO_VECTOR) {
                     Axis = "X";
                     setDefaults();
+                    setSets("X");
                 } else if (Distance.x != 0.0) {
                     Axis = "X";
-                    SetX  = TRUE;
-                    SetY  = FALSE;
-                    SetZ  = FALSE;
+                    Distance.y = 0.0;
+                    Distance.z = 0.0;
+                    setSets("X");
                 } else if (Distance.y != 0.0) {
                     Axis = "Y";
-                    SetX  = FALSE;
-                    SetY  = TRUE;
-                    SetZ  = FALSE;
+                    Distance.x = 0.0;
+                    Distance.z = 0.0;
+                    setSets("Y");
                 } else if (Distance.z != 0.0) {
                     Axis = "Z";
-                    SetX  = FALSE;
-                    SetY  = FALSE;
-                    SetZ  = TRUE;
+                    Distance.x = 0.0;
+                    Distance.y = 0.0;
+                    setSets("Z");
                 }
                 setAxis();
                 Multi = FALSE;
