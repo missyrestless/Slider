@@ -684,11 +684,6 @@ setAxis() {
     if (Distance.z != 0.0) {
         Axis += "Z";
     }
-    if ((Axis == "X") || (Axis == "Y") || (Axis == "Z")) {
-        Multi = FALSE;
-    } else {
-        Multi = TRUE;
-    }
 }
 
 default {
@@ -1179,6 +1174,9 @@ state menu {
                 }
                 setAxis();
                 Multi = FALSE;
+                linksetDataWrite(id, X_DIST_LSD_KEY, (string)Distance.x, "X Distance to slide");
+                linksetDataWrite(id, Y_DIST_LSD_KEY, (string)Distance.y, "Y Distance to slide");
+                linksetDataWrite(id, Z_DIST_LSD_KEY, (string)Distance.z, "Z Distance to slide");
             } else if (message == "CLEAR") {
                 state confirm;
             } else if (message == "RESET") {
