@@ -1,6 +1,6 @@
 # Truth &amp; Beauty Smooth Slider
 
-Slide an object along one of its axes when touched, slide back when touched again.
+Slide an object along one or more of its axes when touched, slide back when touched again.
 
 A smooth sliding motion is achieved by using the LSL function `llSetKeyframedMotion` (KFM).
 
@@ -24,6 +24,7 @@ The Truth &amp; Beauty Smooth Slider is available on the
 
 - Smooth slide
 - Auto configures
+- Slide along any axis or combine to slide in any direction
 - Can slide across region boundaries
 - Can slide long distances (default maximum ~1000 Meters)
 - Menu system to customize settings
@@ -90,12 +91,18 @@ The Smooth Slider dialog menu provides the following Slider control buttons:
     - Reverses the orientation of slide movement
 - `FORWARD`
     - Returns the orientation of slide movement to forward after reversing
+- `MULTI`
+    - Enable multi-dimensional slide
+- `SINGLE`
+    - Slide along a single axis
 - `SLIDE`
     - Slides the object, closing if open or opening if closed
 - `CLEAR`
     - Clear the linkset datastore, reset to default settings, restore to original position
 - `RESET`
     - Resets the script, leaving the datastore intact
+- `DIRECTION`
+    - Control the slide direction
 - `DISTANCE`
     - Select or enter a slide distance
 - `SPEED`
