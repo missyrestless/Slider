@@ -307,6 +307,7 @@ displayDistanceMenu() {
 
     menuMessage = "\nTruth & Beauty Smooth Slider " + VERSION;
     menuMessage += "\nCurrent Slide Distance:\t" + (string)Distance;
+    setSets(Axis);
     if (SetX || SetY || SetZ) {
         if (SetX) {
             menuMessage += "\nSelect the X-Axis slide distance or ENTER to enter a custom value";
