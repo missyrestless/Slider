@@ -59,7 +59,7 @@ See https://github.com/missyrestless/Slider#readme for a full description of the
 
 The Smooth Slider dialog menu provides control buttons to:
 
-- ENABLE/DISABLE the Slider
+- ENABLE or DISABLE the Slider
 - Restrict access to OWNER, GROUP, or PUBLIC
 - Set the slide axis or combine axes to slide in any direction
 - Reverse the orientation of slide movement
