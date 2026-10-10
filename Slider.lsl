@@ -26,9 +26,10 @@ integer   Access   = 2;        // 0 = Owner, 1 = Group, 2 = Public
 integer   Constant = TRUE;     // Whether to maintain a constant speed
 integer   Debug    = FALSE;    // Set to TRUE for verbose debug output
 integer   Enabled  = TRUE;     // Whether touch to slide is enabled
-integer   xReverse  = FALSE;   // Reverse the orientation of movement along the X axis
-integer   yReverse  = FALSE;   // Reverse the orientation of movement along the Y axis
-integer   zReverse  = FALSE;   // Reverse the orientation of movement along the Z axis
+integer   Multi    = FALSE;    // Whether multi-dimension slide is enabled
+integer   xReverse = FALSE;    // Reverse the orientation of movement along the X axis
+integer   yReverse = FALSE;    // Reverse the orientation of movement along the Y axis
+integer   zReverse = FALSE;    // Reverse the orientation of movement along the Z axis
 string    Axis     = "X";      // Axis on which to slide - X, Y, Z, XY, XZ, YZ, or XYZ
 string    State;               // Track the state for dialog menu returns
 float     Duration = 4.0;      // How long to slide in seconds
@@ -152,6 +153,7 @@ string getInfo(integer show) {
     } else {
         info += "VARIABLE";
     }
+    setAxis();
     info += "\nDistance: \t" + (string)Distance;
     info += "\nDuration: \t" + (string)Duration;
     info += "\nSpeed:     \t" + (string)Speed;
@@ -206,39 +208,56 @@ displayDirectionMenu() {
     inSpeedMenu    = FALSE;
 
     menuMessage = "\nTruth & Beauty Smooth Slider " + VERSION;
-    menuMessage += "\nCurrent Slide Directions:\t X = ";
-    if (xReverse) {
-        menuMessage += (string)-Distance.x;
+    if (Multi) {
+        menuMessage += "\nCurrent Slide Directions:\t X = ";
+        if (xReverse) {
+            menuMessage += (string)-Distance.x;
+        } else {
+            menuMessage += (string)Distance.x;
+        }
+        menuMessage += ", Y = ";
+        if (yReverse) {
+            menuMessage += (string)-Distance.x;
+        } else {
+            menuMessage += (string)Distance.x;
+        }
+        menuMessage += ", Z = ";
+        if (zReverse) {
+            menuMessage += (string)-Distance.x;
+        } else {
+            menuMessage += (string)Distance.x;
+        }
+        menuMessage += "\nSet the direction of each Axis";
+        if (xReverse) {
+            dir_menu += ["X FORWARD"];
+        } else {
+            dir_menu += ["X REVERSE"];
+        }
+        if (yReverse) {
+            dir_menu += ["Y FORWARD"];
+        } else {
+            dir_menu += ["Y REVERSE"];
+        }
+        if (zReverse) {
+            dir_menu += ["Z FORWARD"];
+        } else {
+            dir_menu += ["Z REVERSE"];
+        }
     } else {
-        menuMessage += (string)Distance.x;
-    }
-    menuMessage += ", Y = ";
-    if (yReverse) {
-        menuMessage += (string)-Distance.x;
-    } else {
-        menuMessage += (string)Distance.x;
-    }
-    menuMessage += ", Z = ";
-    if (zReverse) {
-        menuMessage += (string)-Distance.x;
-    } else {
-        menuMessage += (string)Distance.x;
-    }
-    menuMessage += "\nSet the direction of each Axis and DONE when done";
-    if (xReverse) {
-        dir_menu += ["X FORWARD"];
-    } else {
-        dir_menu += ["X REVERSE"];
-    }
-    if (yReverse) {
-        dir_menu += ["Y FORWARD"];
-    } else {
-        dir_menu += ["Y REVERSE"];
-    }
-    if (zReverse) {
-        dir_menu += ["Z FORWARD"];
-    } else {
-        dir_menu += ["Z REVERSE"];
+        menuMessage += "\nCurrent Slide Direction:\t";
+        if (xReverse || yReverse || zReverse) {
+            menuMessage += "REVERSE";
+        } else {
+            menuMessage += "FORWARD";
+        }
+        menuMessage += "\nCurrent Slide Axis:\t" + Axis;
+        menuMessage += "\n\nSet the Direction and Axis of slide";
+        dir_menu += ["X", "Y", "Z"];
+        if (xReverse || yReverse || zReverse) {
+            dir_menu += ["FORWARD"];
+        } else {
+            dir_menu += ["REVERSE"];
+        }
     }
     dir_menu += ["DISTANCE", "MAIN MENU", "EXIT"];
     ShowMenu(menuMessage, dir_menu);
@@ -343,6 +362,11 @@ displayMainMenu() {
 
     menuMessage = getInfo(FALSE);
     menuMessage += "\n\nCLEAR = Clear storage, reset to default values";
+    if (Multi) {
+        menuMessage += "\nSINGLE = Slide along a single axis";
+    } else {
+        menuMessage += "\nMULTI = Slide along multiple axes";
+    }
     menuMessage += "\nRESET = Reset scripts, storage persists\n\n";
     if (!Enabled) {
         main_menu += ["ENABLE"];
@@ -353,6 +377,11 @@ displayMainMenu() {
         main_menu += ["OWNER", "PUBLIC"];
     } else if (Access == 0) {
         main_menu += ["GROUP", "PUBLIC"];
+    }
+    if (Multi) {
+        main_menu += ["SINGLE"];
+    } else {
+        main_menu += ["MULTI"];
     }
     if (Enabled) {
         main_menu += ["CLEAR", "RESET"];
@@ -567,14 +596,17 @@ setDefaults() {
         Distance.x = Size.x;
         Distance.y = 0.0;
         Distance.z = 0.0;
+        SetX = TRUE;
     } else if (Axis == "Y") {
         Distance.x = 0.0;
         Distance.y = Size.y;
         Distance.z = 0.0;
+        SetY = TRUE;
     } else if (Axis == "Z") {
         Distance.x = 0.0;
         Distance.y = 0.0;
         Distance.z = Size.z;
+        SetZ = TRUE;
     } else if (Axis == "XY") {
         Distance.x = Size.x;
         Distance.y = Size.y;
@@ -592,22 +624,11 @@ setDefaults() {
         Distance.y = Size.y;
         Distance.z = Size.z;
     } else {
-        Axis = "X";
         Distance.x = Size.x;
         Distance.y = 0.0;
         Distance.z = 0.0;
+        setAxis();
     }
-    // if (Distance.x >= Distance.y) {
-    //     if (Distance.x >= Distance.z) {
-    //         Duration = Distance.x;
-    //     } else {
-    //         Duration = Distance.z;
-    //     }
-    // } else if (Distance.y >= Distance.z) {
-    //     Duration = Distance.y;
-    // } else {
-    //     Duration = Distance.z;
-    // }
     // Default duration is equal to the distance between the two positions
     Duration = llVecDist(Home, Home + Distance);
     // Default Speed is 1 mps
@@ -618,6 +639,24 @@ setDefaults() {
     yReverse = FALSE;
     zReverse = FALSE;
     setDatastoreValues(Owner);
+}
+
+setAxis() {
+    Axis = "";
+    if (Distance.x != 0.0) {
+        Axis = "X";
+    }
+    if (Distance.y != 0.0) {
+        Axis += "Y";
+    }
+    if (Distance.z != 0.0) {
+        Axis += "Z";
+    }
+    if ((Axis == "X") || (Axis == "Y") || (Axis == "Z")) {
+        Multi = FALSE;
+    } else {
+        Multi = TRUE;
+    }
 }
 
 default {
@@ -632,6 +671,9 @@ default {
 
         // Get the stored variable values
         getDatastoreValues();
+
+        // Set the slide Axes and Single or Multi
+        setAxis();
 
         if (llGetInventoryType("Open") == INVENTORY_SOUND) {
             SOUND_ON_OPEN = "Open";
@@ -1028,6 +1070,7 @@ state menu {
 
     listen(integer channel, string name, key id, string message) {
         string DIST_LSD_KEY;
+        string LSD_KEY_DESC;
         if (channel == dialogChannel) {
             if (message == "DISABLE") {
                 Enabled = FALSE;
@@ -1059,16 +1102,62 @@ state menu {
                 SetZ = TRUE;
             } else if (message == "X") {
                 Axis = "X";
+                if (Distance.x == 0.0) {
+                    setDefaults();
+                }
+                SetX  = TRUE;
+                SetY  = FALSE;
+                SetZ  = FALSE;
+                Multi = FALSE;
                 setOpenPos(Distance);
                 linksetDataWrite(id, AXIS_LSD_KEY, Axis, "Slide axis");
             } else if (message == "Y") {
                 Axis = "Y";
+                if (Distance.y == 0.0) {
+                    setDefaults();
+                }
+                SetX  = FALSE;
+                SetY  = TRUE;
+                SetZ  = FALSE;
+                Multi = FALSE;
                 setOpenPos(Distance);
                 linksetDataWrite(id, AXIS_LSD_KEY, Axis, "Slide axis");
             } else if (message == "Z") {
                 Axis = "Z";
+                if (Distance.z == 0.0) {
+                    setDefaults();
+                }
+                SetX  = FALSE;
+                SetY  = FALSE;
+                SetZ  = TRUE;
+                Multi = FALSE;
                 setOpenPos(Distance);
                 linksetDataWrite(id, AXIS_LSD_KEY, Axis, "Slide axis");
+            } else if (message == "MULTI") {
+                setAxis();
+                Multi = TRUE;
+            } else if (message == "SINGLE") {
+                if (Distance == ZERO_VECTOR) {
+                    Axis = "X";
+                    setDefaults();
+                } else if (Distance.x != 0.0) {
+                    Axis = "X";
+                    SetX  = TRUE;
+                    SetY  = FALSE;
+                    SetZ  = FALSE;
+                } else if (Distance.y != 0.0) {
+                    Axis = "Y";
+                    SetX  = FALSE;
+                    SetY  = TRUE;
+                    SetZ  = FALSE;
+                } else if (Distance.z != 0.0) {
+                    Axis = "Z";
+                    SetX  = FALSE;
+                    SetY  = FALSE;
+                    SetZ  = TRUE;
+                }
+                setAxis();
+                Multi = FALSE;
             } else if (message == "CLEAR") {
                 state confirm;
             } else if (message == "RESET") {
@@ -1089,18 +1178,34 @@ state menu {
                 Debug = FALSE;
             } else if (message == "DEBUG ON") {
                 Debug = TRUE;
+            } else if (message == "FORWARD") {
+                xReverse = FALSE;
+                yReverse = FALSE;
+                zReverse = FALSE;
+                setOpenPos(Distance);
+                linksetDataWrite(id, X_REVERSE_LSD_KEY, (string)xReverse, "Slide X direction");
+                linksetDataWrite(id, Y_REVERSE_LSD_KEY, (string)yReverse, "Slide Y direction");
+                linksetDataWrite(id, Z_REVERSE_LSD_KEY, (string)zReverse, "Slide Z direction");
+            } else if (message == "REVERSE") {
+                xReverse = TRUE;
+                yReverse = TRUE;
+                zReverse = TRUE;
+                setOpenPos(Distance);
+                linksetDataWrite(id, X_REVERSE_LSD_KEY, (string)xReverse, "Slide X direction");
+                linksetDataWrite(id, Y_REVERSE_LSD_KEY, (string)yReverse, "Slide Y direction");
+                linksetDataWrite(id, Z_REVERSE_LSD_KEY, (string)zReverse, "Slide Z direction");
             } else if (message == "X FORWARD") {
                 xReverse = FALSE;
                 setOpenPos(Distance);
                 linksetDataWrite(id, X_REVERSE_LSD_KEY, (string)xReverse, "Slide X direction");
             } else if (message == "Y FORWARD") {
-                xReverse = FALSE;
+                yReverse = FALSE;
                 setOpenPos(Distance);
-                linksetDataWrite(id, Y_REVERSE_LSD_KEY, (string)xReverse, "Slide Y direction");
+                linksetDataWrite(id, Y_REVERSE_LSD_KEY, (string)yReverse, "Slide Y direction");
             } else if (message == "Z FORWARD") {
-                xReverse = FALSE;
+                zReverse = FALSE;
                 setOpenPos(Distance);
-                linksetDataWrite(id, Z_REVERSE_LSD_KEY, (string)xReverse, "Slide Z direction");
+                linksetDataWrite(id, Z_REVERSE_LSD_KEY, (string)zReverse, "Slide Z direction");
             } else if (message == "X REVERSE") {
                 xReverse = TRUE;
                 setOpenPos(Distance);
@@ -1174,14 +1279,17 @@ state menu {
                 if (SetX) {
                     Distance.x = (float)dst;
                     DIST_LSD_KEY = X_DIST_LSD_KEY;
+                    LSD_KEY_DESC = "X Distance to slide";
                     SetX = FALSE;
                 } else if (SetY) {
                     Distance.y = (float)dst;
                     DIST_LSD_KEY = Y_DIST_LSD_KEY;
+                    LSD_KEY_DESC = "Y Distance to slide";
                     SetY = FALSE;
                 } else if (SetZ) {
                     Distance.z = (float)dst;
                     DIST_LSD_KEY = Z_DIST_LSD_KEY;
+                    LSD_KEY_DESC = "Z Distance to slide";
                     SetZ = FALSE;
                 }
                 if (Constant) {
@@ -1191,7 +1299,7 @@ state menu {
                     Speed = llVecDist(Home, Home + Distance) / Duration;
                     linksetDataWrite(Owner, SPEED_LSD_KEY, (string)Speed, "Speed of the slide");
                 }
-                linksetDataWrite(id, DIST_LSD_KEY, dst, "Distance to slide");
+                linksetDataWrite(id, DIST_LSD_KEY, dst, LSD_KEY_DESC);
                 setOpenPos(Distance);
             } else if (llGetSubString(message, -4, -1) == " MPS") {
                 string vel = llDeleteSubString(message, -4, -1);
@@ -1219,14 +1327,17 @@ state menu {
                     if (SetX) {
                         Distance.x = (float)valu;
                         DIST_LSD_KEY = X_DIST_LSD_KEY;
+                        LSD_KEY_DESC = "X Distance to slide";
                         SetX = FALSE;
                     } else if (SetY) {
                         Distance.y = (float)valu;
                         DIST_LSD_KEY = Y_DIST_LSD_KEY;
+                        LSD_KEY_DESC = "Y Distance to slide";
                         SetY = FALSE;
                     } else if (SetZ) {
                         Distance.z = (float)valu;
                         DIST_LSD_KEY = Z_DIST_LSD_KEY;
+                        LSD_KEY_DESC = "Z Distance to slide";
                         SetZ = FALSE;
                     }
                     if (Constant) {
@@ -1236,7 +1347,7 @@ state menu {
                         Speed = llVecDist(Home, Home + Distance) / Duration;
                         linksetDataWrite(Owner, SPEED_LSD_KEY, (string)Speed, "Speed of the slide");
                     }
-                    linksetDataWrite(id, DIST_LSD_KEY, valu, "Distance to slide");
+                    linksetDataWrite(id, DIST_LSD_KEY, valu, LSD_KEY_DESC);
                     setOpenPos(Distance);
                 } else if (inSpeedMenu) {
                     Speed = (float)valu;
