@@ -256,7 +256,13 @@ displayDistanceMenu() {
     menuMessage = "\nTruth & Beauty Smooth Slider " + VERSION;
     menuMessage += "\nCurrent Slide Distance:\t" + (string)Distance;
     if (SetX || SetY || SetZ) {
-        menuMessage += "\nSelect a slide distance or ENTER to enter a custom value for distance";
+        if (SetX) {
+            menuMessage += "\nSelect the X-Axis slide distance or ENTER to enter a custom value";
+        } else if (SetY) {
+            menuMessage += "\nSelect the Y-Axis slide distance or ENTER to enter a custom value";
+        } else if (SetZ) {
+            menuMessage += "\nSelect the Z-Axis slide distance or ENTER to enter a custom value";
+        }
         dist_menu += ["0.25 M", "0.5 M", "0.75 M"];
         dist_menu += ["1 M", "2 M", "3 M"];
         dist_menu += ["4 M", "5 M", "6 M"];
@@ -276,6 +282,7 @@ displayDistanceMenu() {
     } else {
         menuMessage += "\nSelect an Axis on which to set the distance";
         dist_menu += ["X-AXIS", "Y-AXIS", "Z-AXIS"];
+        dist_menu += ["DIRECTION", "MAIN MENU", "EXIT"];
     }
     ShowMenu(menuMessage, dist_menu);
 }
@@ -370,6 +377,7 @@ displayMainMenu() {
 // Pass in the full menu list
 ShowMenu(string msg, list fm) {
     integer list_length = llGetListLength(fm);
+    llSetTimerEvent(2.0 * LISTEN_TTL);   // If no response in time, return to previous state
     if (list_length > 12) {
         integer totalPages = (list_length / 10) + (list_length % 10 != 0);
 
@@ -401,7 +409,6 @@ ShowMenu(string msg, list fm) {
         // Send the dialog
         llDialog(Tcher, msg, arrange(fm), dialogChannel);
     }
-    llSetTimerEvent(120);   // If no response in time, return to previous state
 }
 
 getDatastoreValues() {
@@ -1099,13 +1106,13 @@ state menu {
                 setOpenPos(Distance);
                 linksetDataWrite(id, X_REVERSE_LSD_KEY, (string)xReverse, "Slide X direction");
             } else if (message == "Y REVERSE") {
-                xReverse = TRUE;
+                yReverse = TRUE;
                 setOpenPos(Distance);
-                linksetDataWrite(id, Y_REVERSE_LSD_KEY, (string)xReverse, "Slide Y direction");
+                linksetDataWrite(id, Y_REVERSE_LSD_KEY, (string)yReverse, "Slide Y direction");
             } else if (message == "Z REVERSE") {
-                xReverse = TRUE;
+                zReverse = TRUE;
                 setOpenPos(Distance);
-                linksetDataWrite(id, Z_REVERSE_LSD_KEY, (string)xReverse, "Slide Z direction");
+                linksetDataWrite(id, Z_REVERSE_LSD_KEY, (string)zReverse, "Slide Z direction");
             } else if (message == "SPEED") {
                 displaySpeedMenu();
                 return;
