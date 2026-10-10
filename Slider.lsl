@@ -275,6 +275,7 @@ displayDirectionMenu() {
         } else {
             dir_menu += ["Z REVERSE"];
         }
+        dir_menu += ["DISTANCE"];
     } else {
         menuMessage += "\nCurrent Slide Direction:\t";
         if (xReverse || yReverse || zReverse) {
@@ -291,7 +292,7 @@ displayDirectionMenu() {
             dir_menu += ["REVERSE"];
         }
     }
-    dir_menu += ["DISTANCE", "MAIN MENU", "EXIT"];
+    dir_menu += ["MAIN MENU", "EXIT"];
     ShowMenu(menuMessage, dir_menu);
 }
 
