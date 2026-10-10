@@ -19,6 +19,8 @@
 // 07-Oct-2026
 //   - Add debug and info menu entries
 //   - Loop sound and stop sound when move complete
+// 09-Oct-2026
+//   - Add multi-dimensional slide support
 
 string    VERSION  = "1.1.0";
 

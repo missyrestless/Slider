@@ -2,6 +2,9 @@
 
 Slide an object along one or more of its axes when touched, slide back when touched again.
 
+Drag and drop the optimized Smooth Slider script into an object's Contents to enable
+smooth sliding of the object in any direction for a specified distance.
+
 A smooth sliding motion is achieved by using the LSL function `llSetKeyframedMotion` (KFM).
 
 Settings and customization are saved in the object's linkset datastore and persist
@@ -9,6 +12,9 @@ across resets, deletions, and re-rez.
 
 The Truth &amp; Beauty Smooth Slider is available on the
 [Second Life Marketplace](https://marketplace.secondlife.com/p/Truth-Beauty-Smooth-Slider/28771420)
+
+This product contains an optimized Smooth Slider LSL script and an example object containing
+the script. The example object can be used to familiarize yourself with the operation and usage.
 
 ## Table of Contents
 
@@ -69,7 +75,16 @@ inventory onto the ground. Click to slide, long click to open the dialog menu.
 
 ## Menu
 
-The Smooth Slider dialog menu provides the following Slider control buttons:
+The Smooth Slider dialog menus provide control buttons to:
+
+- ENABLE/DISABLE the Slider
+- Restrict access to OWNER, GROUP, or PUBLIC
+- Set the slide axis or combine axes to slide in any direction
+- Reverse the orientation of slide movement
+- Enable multi-dimensional slide or slide along a single axis
+- Control the slide direction, distance, and speed
+
+The Smooth Slider dialog menu control buttons:
 
 - `DISABLE`
     - Disable the slide, only the dialog menu will be available

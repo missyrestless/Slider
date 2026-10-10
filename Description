@@ -3,9 +3,13 @@ Truth & Beauty Smooth Slider
 
 Slide an object along one or more of its axes when touched, slide back when touched again.
 
+This product contains the optimized Smooth Slider script and an example object containing the optimized script. The example object can be used to familiarize yourself with the operation and usage.
+
 A smooth sliding motion is achieved by using the LSL function 'llSetKeyframedMotion' (KFM).
 
 Settings and customization are saved in the object's linkset datastore and persist across resets, deletions, and re-rez.
+
+Full documentation and source code for the Smooth Slider can be found at https://github.com/missyrestless/Slider#readme
 
 Features
 ─────────
@@ -40,7 +44,7 @@ The 'Slider' script will set the object physics shape to Convex Hull and disable
 Usage
 ──────
 
-Drop the 'Slider' script into an object's Contents.
+Drag and drop the 'Slider' script into an object's Contents to enable smooth sliding of the object in any direction for a specified distance.
 
 The default settings allow anyone to slide the object by touching it. A second touch will slide the object back to its original position. By default the object slides along its X-axis and slides the size of its X-axis length.
 
@@ -51,44 +55,16 @@ An example Smooth Slider object is included. The example Smooth Slider is a sing
 Menu
 ─────
 
-The Smooth Slider dialog menu provides the following Slider control buttons:
+See https://github.com/missyrestless/Slider#readme for a full description of the Smooth Slider Dialog Menu system.
 
-- 'DISABLE'
-    - Disable the slide, only the dialog menu will be available
-- 'ENABLE'
-    - Enable the slide, touches will trigger slides
-- 'OWNER'
-    - Restrict access to the Owner of the object
-- 'GROUP'
-    - Restrict access to the Owner of the object or members of the object's group
-- 'PUBLIC'
-    - Anyone can slide the object with a touch, owner and group members can access the menu
-- 'X-AXIS'
-    - Sets the slide axis to the object's X-axis (this is the default)
-- 'Y-AXIS'
-    - Sets the slide axis to the object's Y-axis
-- 'Z-AXIS'
-    - Sets the slide axis to the object's Z-axis
-- 'REVERSE'
-    - Reverses the orientation of slide movement
-- 'FORWARD'
-    - Returns the orientation of slide movement to forward after reversing
-- 'MULTI'
-    - Enable multi-dimensional slide
-- 'SINGLE'
-    - Slide along a single axis
-- 'SLIDE'
-    - Slides the object, closing if open or opening if closed
-- 'CLEAR'
-    - Clear the linkset datastore, reset to default settings, restore to original position
-- 'RESET'
-    - Resets the script, leaving the datastore intact
-- 'DIRECTION'
-    - Control the slide direction
-- 'DISTANCE'
-    - Select or enter a slide distance
-- 'SPEED'
-    - Select or enter a slide speed
+The Smooth Slider dialog menu provides control buttons to:
+
+- ENABLE/DISABLE the Slider
+- Restrict access to OWNER, GROUP, or PUBLIC
+- Set the slide axis or combine axes to slide in any direction
+- Reverse the orientation of slide movement
+- Enable multi-dimensional slide or slide along a single axis
+- Control the slide direction, distance, and speed
 
 Linkset Datastore
 ──────────────────
