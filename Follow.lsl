@@ -12,6 +12,7 @@
 ////////////////////////////////////////////////////
 //
 // 11-Oct-2026 Created by Missy Restless <missyrestless@gmail.com>
+//   - Mimic or Mirror the motion of a Truth & Beauty Smooth Slider
 
 string    VERSION  = "1.1.1";
 
@@ -74,18 +75,28 @@ moveToTarget(vector dst) {
 }
 
 followSlider(string msg) {
-    if (Debug) {
-        llOwnerSay("In followSlider(msg) with message = " + msg);
-    }
-    if (llJsonValueType(msg, []) != JSON_INVALID) {
-        string dst = llJsonGetValue(msg, ["dest"]);
-        string dur = llJsonGetValue(msg, ["time"]);
-        vector dest = (vector)dst;
-        Duration = (float)dur;
-        if (Mirror) {
-            moveToTarget(-dest);
+    if (Enabled) {
+        if (Debug) {
+            llOwnerSay("Enabled, in followSlider(msg) with message = " + msg);
+        }
+        if (llJsonValueType(msg, []) != JSON_INVALID) {
+            string dst = llJsonGetValue(msg, ["dest"]);
+            string dur = llJsonGetValue(msg, ["time"]);
+            vector dest = (vector)dst;
+            Duration = (float)dur;
+            if (Mirror) {
+                moveToTarget(-dest);
+            } else {
+                moveToTarget(dest);
+            }
         } else {
-            moveToTarget(dest);
+            if (Debug) {
+                llOwnerSay("Invalid JSON OBJECT");
+            }
+        }
+    } else {
+        if (Debug) {
+            llOwnerSay("Disabled, in followSlider(msg) with message = " + msg);
         }
     }
 }

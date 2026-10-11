@@ -21,6 +21,9 @@
 //   - Loop sound and stop sound when move complete
 // 09-Oct-2026
 //   - Add multi-dimensional slide support
+// 11-Oct-2026
+//   - Add support for follower objects mimic or mirror movement
+//     Send motion parameters to all followers in region
 
 string    VERSION  = "1.1.1";
 
@@ -28,7 +31,6 @@ integer   Access   = 2;        // 0 = Owner, 1 = Group, 2 = Public
 integer   Constant = TRUE;     // Whether to maintain a constant speed
 integer   Debug    = FALSE;    // Set to TRUE for verbose debug output
 integer   Enabled  = TRUE;     // Whether touch to slide is enabled
-integer   Mirror   = FALSE;    // Whether to mirror a Slider's movements when following
 integer   Multi    = FALSE;    // Whether multi-dimension slide is enabled
 integer   xReverse = FALSE;    // Reverse the orientation of movement along the X axis
 integer   yReverse = FALSE;    // Reverse the orientation of movement along the Y axis
@@ -121,19 +123,7 @@ moveToTarget(vector dst) {
         llOwnerSay("Calling llSetKeyframedMotion with keyframe = " + llDumpList2String(keyframe, ", "));
     }
     llSetKeyframedMotion(keyframe, []);
-    // TODO: pass the vector + duration or the keyframe list?
-    //
-    // One way, create a list of the two parameters and dump the list to a string
-    // llRegionSay(objChannel, llDumpList2String([dst, Duration], ","));
-    //
-    // On the receiving end:
-    // Parse the string back into a list
-    // list data = llParseString2List(message, [","], []);
-    // Extract the original variables
-    // vector dst = llList2Vector(data, 0);
-    // float  duration = llList2Float(data, 1);
-    //
-    // Another way, use a JSON Object with key/value pairs
+    // Use a JSON Object with key/value pairs to pass the motion parameters to followers
     if (Debug) {
         llOwnerSay("Sending move vector and duration to followers with:\n\t"
             + "llRegionSay(objChannel, llList2Json(JSON_OBJECT, [\"dest\", "
