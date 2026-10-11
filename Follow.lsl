@@ -74,6 +74,9 @@ moveToTarget(vector dst) {
 }
 
 followSlider(string msg) {
+    if (Debug) {
+        llOwnerSay("In followSlider(msg) with message = " + msg);
+    }
     if (llJsonValueType(msg, []) != JSON_INVALID) {
         string dst = llJsonGetValue(msg, ["dest"]);
         string dur = llJsonGetValue(msg, ["time"]);
@@ -381,6 +384,8 @@ default {
 
 state menu {
     state_entry() {
+        llListenRemove(objListenID);
+        objListenID = llListen(objChannel, "", NULL_KEY, "");
         pageNumber = 1;
         displayMainMenu();
     }
@@ -420,6 +425,10 @@ state menu {
                 } else {
                     if (id) llRegionSayTo(id, 0, "Only the owner can set the access privilages");
                 }
+            } else if (message == "FOLLOW") {
+                Mirror = FALSE;
+            } else if (message == "MIRROR") {
+                Mirror = TRUE;
             } else if (message == "EXIT") {
                 pageNumber = 1;
                 state follow;
@@ -477,6 +486,8 @@ state confirm {
 // State for following another Slider's movements
 state follow {
     state_entry() {
+        llListenRemove(objListenID);
+        objListenID = llListen(objChannel, "", NULL_KEY, "");
         Tcher = NULL_KEY;
     }
 

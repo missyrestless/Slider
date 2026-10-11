@@ -134,6 +134,11 @@ moveToTarget(vector dst) {
     // float  duration = llList2Float(data, 1);
     //
     // Another way, use a JSON Object with key/value pairs
+    if (Debug) {
+        llOwnerSay("Sending move vector and duration to followers with:\n\t"
+            + "llRegionSay(objChannel, llList2Json(JSON_OBJECT, [\"dest\", "
+            + (string)dst + ", \"time\", " + (string)Duration + "]))");
+    }
     llRegionSay(objChannel, llList2Json(JSON_OBJECT, ["dest", (string)dst, "time", (string)Duration]));
     // On the receiving end, in listen():
     // if (llJsonValueType(message, []) != JSON_INVALID) {
