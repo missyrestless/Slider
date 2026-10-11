@@ -22,12 +22,13 @@
 // 09-Oct-2026
 //   - Add multi-dimensional slide support
 
-string    VERSION  = "1.1.0";
+string    VERSION  = "1.1.1";
 
 integer   Access   = 2;        // 0 = Owner, 1 = Group, 2 = Public
 integer   Constant = TRUE;     // Whether to maintain a constant speed
 integer   Debug    = FALSE;    // Set to TRUE for verbose debug output
 integer   Enabled  = TRUE;     // Whether touch to slide is enabled
+integer   Mirror   = FALSE;    // Whether to mirror a Slider's movements when following
 integer   Multi    = FALSE;    // Whether multi-dimension slide is enabled
 integer   xReverse = FALSE;    // Reverse the orientation of movement along the X axis
 integer   yReverse = FALSE;    // Reverse the orientation of movement along the Y axis
@@ -56,6 +57,7 @@ float   SOUND_VOLUME   = 1.0;
 integer dialogHandle;        // Dialog Menu listener handle
 integer dialogChannel;       // Dialog Menu channel
 integer inputChannel;        // Input text box channel
+integer objChannel;          // Channel for communication between followers, based on owner
 integer pageNumber     = 1;  // Dialog Menu page number
 integer inputListen    = -1;
 integer inDirectMenu   = FALSE;
@@ -119,6 +121,27 @@ moveToTarget(vector dst) {
         llOwnerSay("Calling llSetKeyframedMotion with keyframe = " + llDumpList2String(keyframe, ", "));
     }
     llSetKeyframedMotion(keyframe, []);
+    // TODO: pass the vector + duration or the keyframe list?
+    //
+    // One way, create a list of the two parameters and dump the list to a string
+    // llRegionSay(objChannel, llDumpList2String([dst, Duration], ","));
+    //
+    // On the receiving end:
+    // Parse the string back into a list
+    // list data = llParseString2List(message, [","], []);
+    // Extract the original variables
+    // vector dst = llList2Vector(data, 0);
+    // float  duration = llList2Float(data, 1);
+    //
+    // Another way, use a JSON Object with key/value pairs
+    llRegionSay(objChannel, llList2Json(JSON_OBJECT, ["dest", (string)dst, "time", (string)Duration]));
+    // On the receiving end, in listen():
+    // if (llJsonValueType(message, []) != JSON_INVALID) {
+    //   string dst = llJsonGetValue(message, ["dest"]);
+    //   string dur = llJsonGetValue(message, ["time"]);
+    //   vector dest = (vector)dst;
+    //   float  duration = (float)dur;
+    // }
 }
 
 string getInfo(integer show) {
@@ -742,6 +765,9 @@ default {
         // Compute a negative communications channel based on prim UUID
         dialogChannel   = 0x80000000 | (integer) ( "0x" + (string) llGetKey() );
         inputChannel    = (integer)(llFrand(-1000000000.0) - 1000000000.0);
+        // Compute a large negative channel number based on the object owner
+        // All followers owned by the same owner will use the same channel
+        objChannel = 0x80000000 | (integer) ( "0x" + (string) Owner );
     }
 
     touch_start(integer num_detected) {

@@ -16,6 +16,7 @@ make
   rm -rf ${DEST}
   mkdir -p ${DEST}
 
+  cp Follow.lslo ${DEST}/Follow
   cp Slider.lslo ${DEST}/Slider
   cp README.txt ${DEST}/README
   cp COPYRIGHT LICENSE ${DEST}
