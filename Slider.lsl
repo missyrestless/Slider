@@ -236,7 +236,11 @@ integer contains(string haystack, string needle) {
 }
 
 setSets(string axis) {
-    if (axis == "X") {
+    if (axis == "") {
+        SetX = FALSE;
+        SetY = FALSE;
+        SetZ = FALSE;
+    } else if (axis == "X") {
         SetX = TRUE;
         SetY = FALSE;
         SetZ = FALSE;
@@ -248,6 +252,10 @@ setSets(string axis) {
         SetX = FALSE;
         SetY = FALSE;
         SetZ = TRUE;
+    } else {
+        SetX = FALSE;
+        SetY = FALSE;
+        SetZ = FALSE;
     }
 }
 
@@ -279,7 +287,8 @@ displayDirectionMenu() {
         } else {
             menuMessage += (string)Distance.x;
         }
-        menuMessage += "\nSet the direction of each Axis";
+        menuMessage += "\nSelect the Axes of direction and/or the direction of each Axis";
+        dir_menu += ["X", "Y", "Z", "XY", "XZ", "YZ", "XYZ"];
         if (xReverse) {
             dir_menu += ["X FORWARD"];
         } else {
@@ -295,7 +304,6 @@ displayDirectionMenu() {
         } else {
             dir_menu += ["Z REVERSE"];
         }
-        dir_menu += ["DISTANCE"];
     } else {
         menuMessage += "\nCurrent Slide Direction:\t";
         if (xReverse || yReverse || zReverse) {
@@ -1173,8 +1181,45 @@ state menu {
                 Multi = FALSE;
                 setOpenPos(Distance);
                 linksetDataWrite(id, AXIS_LSD_KEY, Axis, "Slide axis");
+            } else if (message == "XY") {
+                Axis = "XY";
+                if ((Distance.x == 0.0) || (Distance.y == 0.0)) {
+                    setDefaults();
+                }
+                setSets("XY");
+                Multi = TRUE;
+                setOpenPos(Distance);
+                linksetDataWrite(id, AXIS_LSD_KEY, Axis, "Slide axis");
+            } else if (message == "XZ") {
+                Axis = "XZ";
+                if ((Distance.x == 0.0) || (Distance.z == 0.0)) {
+                    setDefaults();
+                }
+                setSets("XZ");
+                Multi = TRUE;
+                setOpenPos(Distance);
+                linksetDataWrite(id, AXIS_LSD_KEY, Axis, "Slide axis");
+            } else if (message == "YZ") {
+                Axis = "YZ";
+                if ((Distance.y == 0.0) || (Distance.z == 0.0)) {
+                    setDefaults();
+                }
+                setSets("YZ");
+                Multi = TRUE;
+                setOpenPos(Distance);
+                linksetDataWrite(id, AXIS_LSD_KEY, Axis, "Slide axis");
+            } else if (message == "XYZ") {
+                Axis = "XYZ";
+                if ((Distance.y == 0.0) || (Distance.z == 0.0) || (Distance.z == 0.0)) {
+                    setDefaults();
+                }
+                setSets("XYZ");
+                Multi = TRUE;
+                setOpenPos(Distance);
+                linksetDataWrite(id, AXIS_LSD_KEY, Axis, "Slide axis");
             } else if (message == "MULTI") {
                 setAxis();
+                setSets("");
                 Multi = TRUE;
             } else if (message == "SINGLE") {
                 if (Distance == ZERO_VECTOR) {

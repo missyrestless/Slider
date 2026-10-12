@@ -96,7 +96,7 @@ The Smooth Slider dialog menus provide control buttons to:
 - Enable multi-dimensional slide or slide along a single axis
 - Control the slide direction, distance, and speed
 
-The Smooth Slider Follower dialog menu provides control buttons to:
+The Smooth Follower dialog menu provides control buttons to:
 
 - ENABLE/DISABLE the Follower
 - Restrict access to OWNER, GROUP, or PUBLIC

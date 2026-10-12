@@ -1,4 +1,4 @@
-////////////// Smooth Slider Follower \\\\\\\\\\\\\\
+////////////////// Smooth Follower \\\\\\\\\\\\\\\\\
 //                                                //
 //        Follow or Mirror a Smooth Slider        //
 ////////////////////////////////////////////////////
@@ -105,7 +105,7 @@ string getInfo(integer show) {
     // Retrieve current datastore values
     getDatastoreValues();
 
-    string info  = "Truth & Beauty Smooth Slider Follower " + VERSION + "\n";
+    string info  = "Truth & Beauty Smooth Follower " + VERSION + "\n";
     string slurl = getSlurl();
     info += "\nLocation:\t" + slurl;
     info += "\nState:     \t";
@@ -370,8 +370,8 @@ default {
 
     on_rez(integer num) {
         Owner = llGetOwner();
-        string rezname = "Truth & Beauty Smooth Slider Follower (example, rez me)";
-        string newname = "Smooth Slider Follower Example";
+        string rezname = "Truth & Beauty Smooth Follower (example, rez me)";
+        string newname = "Smooth Follower Example";
         if (llGetObjectName() == rezname) {
             llSetObjectName(newname);
         }
