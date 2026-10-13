@@ -5,6 +5,8 @@ Slide an object along one or more of its axes when touched, slide back when touc
 Drag and drop the optimized Smooth Slider script into an object's Contents to enable
 smooth sliding of the object in any direction for a specified distance.
 
+The `Follow` script can be added to other object(s) to mimic or mirror the Slider movement.
+
 A smooth sliding motion is achieved by using the LSL function `llSetKeyframedMotion` (KFM).
 
 Settings and customization are saved in the object's linkset datastore and persist
@@ -13,14 +15,16 @@ across resets, deletions, and re-rez.
 The Truth &amp; Beauty Smooth Slider is available on the
 [Second Life Marketplace](https://marketplace.secondlife.com/p/Truth-Beauty-Smooth-Slider/28771420)
 
-This product contains an optimized Smooth Slider LSL script and an example object containing
-the script. The example object can be used to familiarize yourself with the operation and usage.
+This product contains an optimized Smooth Slider script, an optimized Smooth Follower script,
+an example object containing the Slider script and an example object containing the Follow script.
+The example objects can be used to familiarize yourself with the operation and usage.
 
 ## Table of Contents
 
 - [Features](#features)
 - [Requirements and Limitations](#requirements-and-limitations)
 - [Usage](#usage)
+    - [Followers](#followers)
 - [Menu](#menu)
 - [Linkset Datastore](#linkset-datastore)
     - [Slider Linkset Datastore](#slider-linkset-datastore)
@@ -41,6 +45,7 @@ the script. The example object can be used to familiarize yourself with the oper
 - Audio clips are played during movement, one for opening and one for closing
     - Default audio clips are a door opening and a door closing
     - Customize the audio clips by dropping sound files named "Open" and "Close" in the object Contents
+- Follow script to mimic or mirror the Slider movement
 - Collisions with other nonphysical or keyframed objects are ignored
 - Collisions with physical objects will be computed and reported
     - The sliding object will be unaffected by those collisions
@@ -54,7 +59,7 @@ The owner must be able to modify the object and scripts must be enabled on the p
 
 Slides the entire object/linkset.
 
-The `Slider` script will set the object physics shape to Convex Hull and disable physics.
+The `Slider` and `Follow` scripts set the object physics shape to Convex Hull and disable physics.
 Objects that require physics to be enabled or require a physics shape other than Convex Hull
 will not work with this script.
 
@@ -73,6 +78,13 @@ An example Smooth Slider object is included. The example Smooth Slider is a sing
 Drag and drop the `Truth & Beauty Smooth Slider (example, rez me)` object from your
 inventory onto the ground. Click to slide, long click to open the dialog menu.
 
+### Followers
+
+Other objects can be configured to follow the motion of the Slider object by dropping
+the `Follow` script in the object's Contents. Multiple followers can be configured in
+this way. All follower objects owned by the same owner as the Slider object will mimic
+or mirror the Slider object's movement.
+
 ## Menu
 
 The Smooth Slider dialog menus provide control buttons to:
@@ -83,6 +95,12 @@ The Smooth Slider dialog menus provide control buttons to:
 - Reverse the orientation of slide movement
 - Enable multi-dimensional slide or slide along a single axis
 - Control the slide direction, distance, and speed
+
+The Smooth Follower dialog menu provides control buttons to:
+
+- ENABLE/DISABLE the Follower
+- Restrict access to OWNER, GROUP, or PUBLIC
+- Set the follower to FOLLOW or MIRROR mode
 
 The Smooth Slider dialog menu control buttons:
 
@@ -166,6 +184,8 @@ Currently the `Slider` settings saved in the Linkset Datastore are as follows:
     - Along which axis the object slides
 - Slide orientation
     - Whether the object slides in a positive or negative direction
+
+Followers maintain their access restriction in their Linkset Datastore.
 
 ### Slider Volatile Memory
 

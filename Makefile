@@ -18,12 +18,12 @@ PREPROC_PATH=cpp
 # End of configuration area
 
 # Version being compiled (LSL string)
-VERSION="1.1.0"
+VERSION="1.1.1"
 
 
 # Note some of these scripts don't strictly need to be optimized for memory.
 
-OPTIMIZED=Slider.lslo
+OPTIMIZED=Follow.lslo Slider.lslo
 
 UNOPTIMIZED=
 

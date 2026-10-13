@@ -21,8 +21,11 @@
 //   - Loop sound and stop sound when move complete
 // 09-Oct-2026
 //   - Add multi-dimensional slide support
+// 11-Oct-2026
+//   - Add support for follower objects mimic or mirror movement
+//     Send motion parameters to all followers in region
 
-string    VERSION  = "1.1.0";
+string    VERSION  = "1.1.1";
 
 integer   Access   = 2;        // 0 = Owner, 1 = Group, 2 = Public
 integer   Constant = TRUE;     // Whether to maintain a constant speed
@@ -56,6 +59,7 @@ float   SOUND_VOLUME   = 1.0;
 integer dialogHandle;        // Dialog Menu listener handle
 integer dialogChannel;       // Dialog Menu channel
 integer inputChannel;        // Input text box channel
+integer objChannel;          // Channel for communication between followers, based on owner
 integer pageNumber     = 1;  // Dialog Menu page number
 integer inputListen    = -1;
 integer inDirectMenu   = FALSE;
@@ -119,6 +123,20 @@ moveToTarget(vector dst) {
         llOwnerSay("Calling llSetKeyframedMotion with keyframe = " + llDumpList2String(keyframe, ", "));
     }
     llSetKeyframedMotion(keyframe, []);
+    // Use a JSON Object with key/value pairs to pass the motion parameters to followers
+    if (Debug) {
+        llOwnerSay("Sending move vector and duration to followers with:\n\t"
+            + "llRegionSay(objChannel, llList2Json(JSON_OBJECT, [\"dest\", "
+            + (string)dst + ", \"time\", " + (string)Duration + "]))");
+    }
+    llRegionSay(objChannel, llList2Json(JSON_OBJECT, ["dest", (string)dst, "time", (string)Duration]));
+    // On the receiving end, in listen():
+    // if (llJsonValueType(message, []) != JSON_INVALID) {
+    //   string dst = llJsonGetValue(message, ["dest"]);
+    //   string dur = llJsonGetValue(message, ["time"]);
+    //   vector dest = (vector)dst;
+    //   float  duration = (float)dur;
+    // }
 }
 
 string getInfo(integer show) {
@@ -218,7 +236,11 @@ integer contains(string haystack, string needle) {
 }
 
 setSets(string axis) {
-    if (axis == "X") {
+    if (axis == "") {
+        SetX = FALSE;
+        SetY = FALSE;
+        SetZ = FALSE;
+    } else if (axis == "X") {
         SetX = TRUE;
         SetY = FALSE;
         SetZ = FALSE;
@@ -230,6 +252,10 @@ setSets(string axis) {
         SetX = FALSE;
         SetY = FALSE;
         SetZ = TRUE;
+    } else {
+        SetX = FALSE;
+        SetY = FALSE;
+        SetZ = FALSE;
     }
 }
 
@@ -261,7 +287,8 @@ displayDirectionMenu() {
         } else {
             menuMessage += (string)Distance.x;
         }
-        menuMessage += "\nSet the direction of each Axis";
+        menuMessage += "\nSelect the Axes of direction and/or the direction of each Axis";
+        dir_menu += ["X", "Y", "Z", "XY", "XZ", "YZ", "XYZ"];
         if (xReverse) {
             dir_menu += ["X FORWARD"];
         } else {
@@ -277,7 +304,6 @@ displayDirectionMenu() {
         } else {
             dir_menu += ["Z REVERSE"];
         }
-        dir_menu += ["DISTANCE"];
     } else {
         menuMessage += "\nCurrent Slide Direction:\t";
         if (xReverse || yReverse || zReverse) {
@@ -742,6 +768,9 @@ default {
         // Compute a negative communications channel based on prim UUID
         dialogChannel   = 0x80000000 | (integer) ( "0x" + (string) llGetKey() );
         inputChannel    = (integer)(llFrand(-1000000000.0) - 1000000000.0);
+        // Compute a large negative channel number based on the object owner
+        // All followers owned by the same owner will use the same channel
+        objChannel = 0x80000000 | (integer) ( "0x" + (string) Owner );
     }
 
     touch_start(integer num_detected) {
@@ -1152,8 +1181,45 @@ state menu {
                 Multi = FALSE;
                 setOpenPos(Distance);
                 linksetDataWrite(id, AXIS_LSD_KEY, Axis, "Slide axis");
+            } else if (message == "XY") {
+                Axis = "XY";
+                if ((Distance.x == 0.0) || (Distance.y == 0.0)) {
+                    setDefaults();
+                }
+                setSets("XY");
+                Multi = TRUE;
+                setOpenPos(Distance);
+                linksetDataWrite(id, AXIS_LSD_KEY, Axis, "Slide axis");
+            } else if (message == "XZ") {
+                Axis = "XZ";
+                if ((Distance.x == 0.0) || (Distance.z == 0.0)) {
+                    setDefaults();
+                }
+                setSets("XZ");
+                Multi = TRUE;
+                setOpenPos(Distance);
+                linksetDataWrite(id, AXIS_LSD_KEY, Axis, "Slide axis");
+            } else if (message == "YZ") {
+                Axis = "YZ";
+                if ((Distance.y == 0.0) || (Distance.z == 0.0)) {
+                    setDefaults();
+                }
+                setSets("YZ");
+                Multi = TRUE;
+                setOpenPos(Distance);
+                linksetDataWrite(id, AXIS_LSD_KEY, Axis, "Slide axis");
+            } else if (message == "XYZ") {
+                Axis = "XYZ";
+                if ((Distance.y == 0.0) || (Distance.z == 0.0) || (Distance.z == 0.0)) {
+                    setDefaults();
+                }
+                setSets("XYZ");
+                Multi = TRUE;
+                setOpenPos(Distance);
+                linksetDataWrite(id, AXIS_LSD_KEY, Axis, "Slide axis");
             } else if (message == "MULTI") {
                 setAxis();
+                setSets("");
                 Multi = TRUE;
             } else if (message == "SINGLE") {
                 if (Distance == ZERO_VECTOR) {

@@ -1,6 +1,8 @@
-///////////////// Smooth Slider \\\\\\\\\\\\\\\\\\\\
+//////////// Smooth Slider & Follower \\\\\\\\\\\\\\
 //                                                //
 //   Slides an object on touch and slides back    //
+//   on subsequent touch. Follow script can be    //
+//   used in other objects to mimic or mirror.    //
 ////////////////////////////////////////////////////
 //
 ////////////////////////////////////////////////////
