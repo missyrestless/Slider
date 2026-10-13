@@ -304,6 +304,17 @@ string getSlurl() {
     return "https://maps.secondlife.com/secondlife/" + llEscapeURL(regionName) + "/" + coords;
 }
 
+rezInfo() {
+    string rezname = "Truth & Beauty Smooth Follower (example, rez me)";
+    string newname = "Smooth Follower Example";
+    if (llGetObjectName() == rezname) {
+        llSetObjectName(newname);
+    }
+    getInfo(TRUE);
+    string info = "\nTouch to open the Follower menu.";
+    llOwnerSay(info);
+}
+
 default {
     state_entry() {
         Owner = llGetOwner();
@@ -370,14 +381,7 @@ default {
 
     on_rez(integer num) {
         Owner = llGetOwner();
-        string rezname = "Truth & Beauty Smooth Follower (example, rez me)";
-        string newname = "Smooth Follower Example";
-        if (llGetObjectName() == rezname) {
-            llSetObjectName(newname);
-        }
-        getInfo(TRUE);
-        string info = "\nTouch to open the Follower menu.";
-        llOwnerSay(info);
+        rezInfo();
         llResetScript();
     }
 
@@ -544,5 +548,11 @@ state follow {
         } else if (change & CHANGED_INVENTORY) {
             llResetScript();
         }
+    }
+
+    on_rez(integer num) {
+        Owner = llGetOwner();
+        rezInfo();
+        llResetScript();
     }
 }
