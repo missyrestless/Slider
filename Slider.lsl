@@ -24,8 +24,10 @@
 // 11-Oct-2026
 //   - Add support for follower objects mimic or mirror movement
 //     Send motion parameters to all followers in region
+// 13-Oct-2026
+//   - Add Followers menu to set radius of followers or disable
 
-string    VERSION  = "1.1.1";
+string    VERSION  = "1.1.2";
 
 integer   Access   = 2;        // 0 = Owner, 1 = Group, 2 = Public
 integer   Constant = TRUE;     // Whether to maintain a constant speed
@@ -36,6 +38,7 @@ integer   xReverse = FALSE;    // Reverse the orientation of movement along the 
 integer   yReverse = FALSE;    // Reverse the orientation of movement along the Y axis
 integer   zReverse = FALSE;    // Reverse the orientation of movement along the Z axis
 string    Axis     = "X";      // Axis on which to slide - X, Y, Z, XY, XZ, YZ, or XYZ
+string    Radius   = "Say";    // Whisper, Say, RegionSay, or None - radius of followers
 string    State;               // Track the state for dialog menu returns
 float     Duration = 4.0;      // How long to slide in seconds
 float     Speed    = 1.0;      // How fast to slide in meters per second (Distance/Duration)
@@ -64,6 +67,7 @@ integer pageNumber     = 1;  // Dialog Menu page number
 integer inputListen    = -1;
 integer inDirectMenu   = FALSE;
 integer inDistanceMenu = FALSE;
+integer inFollowMenu   = FALSE;
 integer inSpeedMenu    = FALSE;
 integer SetX           = FALSE;
 integer SetY           = FALSE;
@@ -88,6 +92,8 @@ string  Z_DIST_LSD_KEY    = "zdist";
 string  DURATION_LSD_KEY  = "duration";
 // Speed of the slide
 string  SPEED_LSD_KEY     = "speed";
+// Follower radius
+string  FOLLOW_LSD_KEY    = "follow";
 // Slide axis
 string  AXIS_LSD_KEY      = "axis";
 // Slide orientation
@@ -125,11 +131,21 @@ moveToTarget(vector dst) {
     llSetKeyframedMotion(keyframe, []);
     // Use a JSON Object with key/value pairs to pass the motion parameters to followers
     if (Debug) {
-        llOwnerSay("Sending move vector and duration to followers with:\n\t"
-            + "llRegionSay(objChannel, llList2Json(JSON_OBJECT, [\"dest\", "
-            + (string)dst + ", \"time\", " + (string)Duration + "]))");
+        if (Radius == "None") {
+            llOwnerSay("Not sending move vector and duration to followers");
+        } else {
+            llOwnerSay("Sending move vector and duration to followers with:\n\tll"
+                + Radius + "(objChannel, llList2Json(JSON_OBJECT, [\"dest\", "
+                + (string)dst + ", \"time\", " + (string)Duration + "]))");
+        }
     }
-    llRegionSay(objChannel, llList2Json(JSON_OBJECT, ["dest", (string)dst, "time", (string)Duration]));
+    if (Radius == "Whisper") {
+        llWhisper(objChannel, llList2Json(JSON_OBJECT, ["dest", (string)dst, "time", (string)Duration]));
+    } else if (Radius == "Say") {
+        llSay(objChannel, llList2Json(JSON_OBJECT, ["dest", (string)dst, "time", (string)Duration]));
+    } else if (Radius == "RegionSay") {
+        llRegionSay(objChannel, llList2Json(JSON_OBJECT, ["dest", (string)dst, "time", (string)Duration]));
+    }
     // On the receiving end, in listen():
     // if (llJsonValueType(message, []) != JSON_INVALID) {
     //   string dst = llJsonGetValue(message, ["dest"]);
@@ -265,6 +281,7 @@ displayDirectionMenu() {
     list dir_menu  = [];
     inDirectMenu   = TRUE;
     inDistanceMenu = FALSE;
+    inFollowMenu   = FALSE;
     inSpeedMenu    = FALSE;
 
     menuMessage = "\nTruth & Beauty Smooth Slider " + VERSION;
@@ -331,6 +348,7 @@ displayDistanceMenu() {
     list dist_menu = [];
     inDistanceMenu = TRUE;
     inDirectMenu   = FALSE;
+    inFollowMenu   = FALSE;
     inSpeedMenu    = FALSE;
 
     menuMessage = "\nTruth & Beauty Smooth Slider " + VERSION;
@@ -376,6 +394,7 @@ displaySpeedMenu() {
     inSpeedMenu     = TRUE;
     inDistanceMenu  = FALSE;
     inDirectMenu    = FALSE;
+    inFollowMenu    = FALSE;
 
     menuMessage = "\nTruth & Beauty Smooth Slider " + VERSION;
     menuMessage += "\nCurrent Slide Speed:\t" + (string)Speed;
@@ -413,6 +432,27 @@ displaySpeedMenu() {
     ShowMenu(menuMessage, speed_menu);
 }
 
+displayFollowMenu() {
+    llListenRemove(dialogHandle);
+    dialogHandle     = llListen(dialogChannel, "", Tcher, "");
+    list follow_menu = [];
+    inDirectMenu     = FALSE;
+    inDistanceMenu   = FALSE;
+    inFollowMenu     = TRUE;
+    inSpeedMenu      = FALSE;
+
+    menuMessage = "\nTruth & Beauty Smooth Slider " + VERSION;
+    if (Radius == "Whisper") {
+        menuMessage = "\nCurrent radius of followers = 10 Meters";
+    } else if (Radius == "Say") {
+        menuMessage = "\nCurrent radius of followers = 20 Meters";
+    } else if (Radius == "RegionSay") {
+        menuMessage = "\nCurrent radius of followers = Region Wide";
+    }
+    menuMessage = "\n\nSelect the radius of followers or NONE to disable";
+    follow_menu += ["NONE", "10 METER", "20 METER", "REGION", "MAIN MENU", "EXIT"];
+}
+
 displayMainMenu() {
     if (inputListen != -1) llListenRemove(inputListen);
     llListenRemove(dialogHandle);
@@ -421,6 +461,7 @@ displayMainMenu() {
     inDistanceMenu = FALSE;
     inSpeedMenu    = FALSE;
     inDirectMenu   = FALSE;
+    inFollowMenu   = FALSE;
 
     menuMessage = getInfo(FALSE);
     menuMessage += "\n\nCLEAR = Clear storage, reset to default values";
@@ -450,7 +491,7 @@ displayMainMenu() {
     } else {
         main_menu += ["RESET"];
     }
-    main_menu += ["SLIDE", "DIRECTION", "DISTANCE", "SPEED"];
+    main_menu += ["FOLLOWERS", "DIRECTION", "DISTANCE", "SPEED"];
     if (Enabled) {
         main_menu += ["DISABLE"];
     } else {
@@ -539,6 +580,11 @@ getDatastoreValues() {
     if (linksetValue != "") {
         Speed = (float)linksetValue;
     }
+    // Follower radius
+    linksetValue = llLinksetDataRead(FOLLOW_LSD_KEY);
+    if (linksetValue != "") {
+        Radius = linksetValue;
+    }
     // Slide axis
     linksetValue = llLinksetDataRead(AXIS_LSD_KEY);
     if (linksetValue != "") {
@@ -575,6 +621,8 @@ setDatastoreValues(key id) {
     linksetDataWrite(id, DURATION_LSD_KEY, (string)Duration, "Duration of the slide");
     // Speed of the slide
     linksetDataWrite(id, SPEED_LSD_KEY, (string)Speed, "Speed of the slide");
+    // Follower radius
+    linksetDataWrite(id, FOLLOW_LSD_KEY, Radius, "Follower radius");
     // Slide axis
     linksetDataWrite(id, AXIS_LSD_KEY, Axis, "Slide axis");
     // Slide orientation
@@ -1140,14 +1188,8 @@ state menu {
                 state opening;
             } else if (message == "CLOSE") {
                 state closing;
-            } else if (message == "SLIDE") {
-                if (State == "default") {
-                    state opening;
-                } else if (State == "open") {
-                    state closing;
-                } else if (State == "closed") {
-                    state opening;
-                }
+            } else if (message == "FOLLOWERS") {
+                displayFollowMenu();
             } else if (message == "X-AXIS") {
                 setSets("X");
             } else if (message == "Y-AXIS") {
@@ -1344,6 +1386,18 @@ state menu {
                     displayMainMenu();
                 }
                 return; // Exit the listen event
+            } else if (message == "NONE") {
+                Radius = "None";
+                linksetDataWrite(id, FOLLOW_LSD_KEY, Radius, "Follower radius");
+            } else if (message == "10 METER") {
+                Radius = "Whisper";
+                linksetDataWrite(id, FOLLOW_LSD_KEY, Radius, "Follower radius");
+            } else if (message == "20 METER") {
+                Radius = "Say";
+                linksetDataWrite(id, FOLLOW_LSD_KEY, Radius, "Follower radius");
+            } else if (message == "REGION") {
+                Radius = "RegionSay";
+                linksetDataWrite(id, FOLLOW_LSD_KEY, Radius, "Follower radius");
             } else if (message == "MAIN MENU") {
                 pageNumber = 1;
                 displayMainMenu();
@@ -1405,6 +1459,8 @@ state menu {
             } else if (inSpeedMenu) {
                 displaySpeedMenu();
             } else if (inDirectMenu) {
+                displayDirectionMenu();
+            } else if (inFollowMenu) {
                 displayDirectionMenu();
             } else {
                 displayMainMenu();

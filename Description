@@ -58,6 +58,8 @@ Followers
 
 Other objects can be configured to follow the motion of the Slider object by dropping the 'Follow' script in the object's Contents. Multiple followers can be configured in this way. All follower objects owned by the same owner as the Slider object will mimic or mirror the Slider object's movement.
 
+Use the FOLLOWERS menu button to manage multiple Sliders and Followers.
+
 Menu
 ─────
 

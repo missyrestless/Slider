@@ -64,7 +64,14 @@ An example Smooth Slider object is included. The example Smooth Slider is a sing
 Followers
 ─────────
 
-Other objects can be configured to follow the motion of the Slider object by dropping the 'Follow' script in the object's Contents. Multiple followers can be configured in this way. All follower objects owned by the same owner as the Slider object will mimic or mirror the Slider object's movement.
+Other objects can be configured to follow the motion of the Slider object by dropping the 'Follow' script in the object's Contents. Multiple followers can be configured in this way. All follower objects within a configurable distance and owned by the same owner as the Slider object will mimic or mirror the Slider object's movement.
+
+Managing multiple Sliders and Followers
+────────────────────────────────────────
+
+By default, Follower objects within a 20 meter radius of a Slider will mimic the movement of that Slider. If multiple Sliders are within that radius then the Follower will be mimicing the movements of multiple Sliders. This would cause erratic Follower movement.
+
+There are two methods to manage the movement of Followers when multiple Sliders are in range. First, decrease Slider range to 10 Meters using the FOLLOWERS -> 10 METERS button. If multiple Sliders are still within range of a Follower then use the second method, disable Followers in all but one of the Sliders (FOLLOWERS -> NONE button).
 
 Menu
 ─────
@@ -77,6 +84,7 @@ The Smooth Slider dialog menus provide control buttons to:
 - Reverse the orientation of slide movement
 - Enable multi-dimensional slide or slide along a single axis
 - Control the slide direction, distance, and speed
+- Set the max distance to followers or disable following
 
 The Smooth Follower dialog menu provides control buttons to:
 
@@ -124,6 +132,8 @@ The Smooth Slider dialog menu control buttons:
     - Select or enter a slide speed
     - 'CONSTANT' button on the SPEED menu fixes speed regardless of distance changes
     - 'VARIABLE' button on the SPEED menu causes speed to increase as distance increases
+- 'FOLLOWERS'
+    - Set the Max distance to a follower or disable following
 - 'EXIT'
     - Exit the dialog menu and return to the active state
 
@@ -155,6 +165,8 @@ Currently the 'Slider' settings saved in the Linkset Datastore are as follows:
     - How long it takes to complete the slide
 - Speed of the slide
     - How fast the object slides
+- Follower radius
+    - Max distance to a follower or disable following
 - Slide axis
     - Along which axis the object slides
 - Slide orientation

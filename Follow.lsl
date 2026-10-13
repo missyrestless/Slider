@@ -14,7 +14,7 @@
 // 11-Oct-2026 Created by Missy Restless <missyrestless@gmail.com>
 //   - Mimic or Mirror the motion of a Truth & Beauty Smooth Slider
 
-string    VERSION  = "1.1.1";
+string    VERSION  = "1.1.2";
 
 integer   Access   = 1;        // 0 = Owner, 1 = Group, 2 = Public
 integer   Debug    = FALSE;    // Set to TRUE for verbose debug output
