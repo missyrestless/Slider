@@ -19,6 +19,7 @@ Dist
 
 # Temporary file backups and patch creation
 *.00
+Riser.lsl*
 
 tmp
 .project

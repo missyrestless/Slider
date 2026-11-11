@@ -1,0 +1,11 @@
+--- Slider.lsl	2026-11-11 13:06:21.669900850 -0800
++++ Riser.lsl	2026-11-11 13:02:41.139551239 -0800
+@@ -37,7 +37,7 @@
+ integer   xReverse = FALSE;    // Reverse the orientation of movement along the X axis
+ integer   yReverse = FALSE;    // Reverse the orientation of movement along the Y axis
+ integer   zReverse = FALSE;    // Reverse the orientation of movement along the Z axis
+-string    Axis     = "X";      // Axis on which to slide - X, Y, Z, XY, XZ, YZ, or XYZ
++string    Axis     = "Z";      // Axis on which to slide - X, Y, Z, XY, XZ, YZ, or XYZ
+ string    Radius   = "Say";    // Whisper, Say, RegionSay, or None - radius of followers
+ string    State;               // Track the state for dialog menu returns
+ float     Duration = 4.0;      // How long to slide in seconds

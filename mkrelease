@@ -54,6 +54,7 @@ gh release create v${VERSION} ${DRAFT} \
                   --target "${BRANCH}" \
                   --notes-file README.md \
                   Follow.lslo \
+                  Riser.lslo \
                   Slider.lslo \
                   ${PRODUCT}-${VERSION}.tar.gz
 

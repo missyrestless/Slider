@@ -27,9 +27,9 @@
 // 13-Oct-2026
 //   - Add Followers menu to set radius of followers or disable
 
-string    VERSION  = "1.1.2";
+string    VERSION  = "1.1.3";
 
-integer   Access   = 2;        // 0 = Owner, 1 = Group, 2 = Public
+integer   Access   = 1;        // 0 = Owner, 1 = Group, 2 = Public
 integer   Constant = TRUE;     // Whether to maintain a constant speed
 integer   Debug    = FALSE;    // Set to TRUE for verbose debug output
 integer   Enabled  = TRUE;     // Whether touch to slide is enabled
@@ -54,7 +54,8 @@ vector    Distance;            // How far to slide along the X axis
 string  SOUND_ON_OPEN  = "e5e01091-9c1f-4f8c-8486-46d560ff664f";
 // Define a sound that plays when the object has closed. If a sound file
 // named "Close" is in the prim inventory then it will be used instead
-string  SOUND_ON_CLOSE = "88d13f1f-85a8-49da-99f7-6fa2781b2229";
+// string  SOUND_ON_CLOSE = "88d13f1f-85a8-49da-99f7-6fa2781b2229";
+string  SOUND_ON_CLOSE = "e5e01091-9c1f-4f8c-8486-46d560ff664f";
 // Define the volume of the opening and closing sounds
 float   SOUND_VOLUME   = 1.0;
 

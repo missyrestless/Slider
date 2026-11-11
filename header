@@ -1,8 +1,9 @@
-//////////// Smooth Slider & Follower \\\\\\\\\\\\\\
+//////// Smooth Riser, Slider, & Follower \\\\\\\\\\
 //                                                //
 //   Slides an object on touch and slides back    //
 //   on subsequent touch. Follow script can be    //
 //   used in other objects to mimic or mirror.    //
+//   Riser script raises and lowers the object.   //
 ////////////////////////////////////////////////////
 //
 ////////////////////////////////////////////////////

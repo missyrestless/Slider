@@ -18,6 +18,7 @@ make
 
   cp Follow.lslo ${DEST}/Follow
   cp Slider.lslo ${DEST}/Slider
+  cp Riser.lslo ${DEST}/Riser
   cp README.txt ${DEST}/README
   cp COPYRIGHT LICENSE ${DEST}
 }

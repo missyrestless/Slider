@@ -18,12 +18,12 @@ PREPROC_PATH=cpp
 # End of configuration area
 
 # Version being compiled (LSL string)
-VERSION="1.1.2"
+VERSION="1.1.3"
 
 
 # Note some of these scripts don't strictly need to be optimized for memory.
 
-OPTIMIZED=Follow.lslo Slider.lslo
+OPTIMIZED=Follow.lslo Slider.lslo Riser.lslo
 
 UNOPTIMIZED=
 
@@ -32,8 +32,13 @@ all: $(OPTIMIZED)
 
 clean:
 	$(PYTHON) build-aux.py rm $(OPTIMIZED)
+	rm -f Riser.lsl*
 
 optimized: $(OPTIMIZED)
+
+Riser.lsl:
+	cp Slider.lsl Riser.lsl
+	patch -b -p0 < riser.patch
 
 %.lslo %.lslt: %.lsl
 	$(PYTHON) $(OPTIMIZER) -H -O addstrings,shrinknames,-extendedglobalexpr -p $(PREPROC_KIND) --precmd=$(PREPROC_PATH) $(OFLAGS) $< -o $@
